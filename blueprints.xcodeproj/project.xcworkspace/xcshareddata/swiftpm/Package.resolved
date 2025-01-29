@@ -1,0 +1,24 @@
+{
+  "originHash" : "9c2fbb6b2267d7a50fcd588b4c6b89383629edd06edb667f81f96d3562fcca09",
+  "pins" : [
+    {
+      "identity" : "biguipaging",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/notsobigcompany/BigUIPaging",
+      "state" : {
+        "revision" : "40fa6e1683bd47b962e216c05377bfd1b8f760de",
+        "version" : "0.0.3"
+      }
+    },
+    {
+      "identity" : "wave",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/jtrivedi/Wave",
+      "state" : {
+        "revision" : "d95ce41fa52c42d9790388e9086c892930e9e48b",
+        "version" : "0.3.2"
+      }
+    }
+  ],
+  "version" : 3
+}

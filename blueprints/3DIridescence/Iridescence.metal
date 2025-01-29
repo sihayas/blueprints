@@ -181,7 +181,7 @@ fragment float4 fragmentShader(VertexOutput in [[stage_in]],
     // Transform normal from tangent space to world space
     float3 N = normalize(tbnMatrix * normalColor);
 
-    // Existing code to calculate lighting
+    // Calculate lighting
     float3 V = normalize(uniforms.cameraPosition - in.worldPosition);
     float3 L = normalize(float3(1.0, 1.0, 1.0)); // Directional light
     float3 H = normalize(V + L);

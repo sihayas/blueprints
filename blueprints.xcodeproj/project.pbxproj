@@ -6,6 +6,40 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		CD8DE6052D49A3A9009CEDAB /* Wave in Frameworks */ = {isa = PBXBuildFile; productRef = CD8DE6042D49A3A9009CEDAB /* Wave */; };
+		CD8DE6082D49A3B2009CEDAB /* BigUIPaging in Frameworks */ = {isa = PBXBuildFile; productRef = CD8DE6072D49A3B2009CEDAB /* BigUIPaging */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXBuildRule section */
+		CD8DE5E82D49A2C4009CEDAB /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.ci.air";
+			fileType = pattern.proxy;
+			inputFiles = (
+			);
+			isEditable = 1;
+			outputFiles = (
+				"$(METAL_LIBRARY_OUTPUT_DIR)/$(INPUT_FILE_BASE).metallib",
+			);
+			script = "xcrun metallib -cikernel \"${INPUT_FILE_PATH}\" -o \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+		};
+		CD8DE5F52D49A2EA009CEDAB /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.ci.metal";
+			fileType = pattern.proxy;
+			inputFiles = (
+			);
+			isEditable = 1;
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).air",
+			);
+			script = "xcrun metal -c -fcikernel  \"${INPUT_FILE_PATH}\" -o \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+		};
+/* End PBXBuildRule section */
+
 /* Begin PBXContainerItemProxy section */
 		CD8DE5CC2D49A2B6009CEDAB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +86,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CD8DE6052D49A3A9009CEDAB /* Wave in Frameworks */,
+				CD8DE6082D49A3B2009CEDAB /* BigUIPaging in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -104,6 +140,8 @@
 				CD8DE5B42D49A2B4009CEDAB /* Resources */,
 			);
 			buildRules = (
+				CD8DE5F52D49A2EA009CEDAB /* PBXBuildRule */,
+				CD8DE5E82D49A2C4009CEDAB /* PBXBuildRule */,
 			);
 			dependencies = (
 			);
@@ -112,6 +150,8 @@
 			);
 			name = blueprints;
 			packageProductDependencies = (
+				CD8DE6042D49A3A9009CEDAB /* Wave */,
+				CD8DE6072D49A3B2009CEDAB /* BigUIPaging */,
 			);
 			productName = blueprints;
 			productReference = CD8DE5B62D49A2B4009CEDAB /* blueprints.app */;
@@ -195,6 +235,10 @@
 			);
 			mainGroup = CD8DE5AD2D49A2B4009CEDAB;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				CD8DE6032D49A3A9009CEDAB /* XCRemoteSwiftPackageReference "Wave" */,
+				CD8DE6062D49A3B2009CEDAB /* XCRemoteSwiftPackageReference "BigUIPaging" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CD8DE5B72D49A2B4009CEDAB /* Products */;
 			projectDirPath = "";
@@ -558,6 +602,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		CD8DE6032D49A3A9009CEDAB /* XCRemoteSwiftPackageReference "Wave" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/jtrivedi/Wave";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.3.2;
+			};
+		};
+		CD8DE6062D49A3B2009CEDAB /* XCRemoteSwiftPackageReference "BigUIPaging" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/notsobigcompany/BigUIPaging";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.0.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		CD8DE6042D49A3A9009CEDAB /* Wave */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CD8DE6032D49A3A9009CEDAB /* XCRemoteSwiftPackageReference "Wave" */;
+			productName = Wave;
+		};
+		CD8DE6072D49A3B2009CEDAB /* BigUIPaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CD8DE6062D49A3B2009CEDAB /* XCRemoteSwiftPackageReference "BigUIPaging" */;
+			productName = BigUIPaging;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = CD8DE5AE2D49A2B4009CEDAB /* Project object */;
 }
