@@ -13,8 +13,8 @@ struct blueprintsApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            RepliesSheet(size: UIScreen.main.bounds.size, minHomeHeight: 32)
+                .environmentObject(WindowState.shared)
         }
     }
 }

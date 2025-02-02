@@ -1,5 +1,5 @@
 {
-  "originHash" : "9c2fbb6b2267d7a50fcd588b4c6b89383629edd06edb667f81f96d3562fcca09",
+  "originHash" : "1008588d37a60ed4162a6656d8375212ba494fb15c0b241278381e52270a0277",
   "pins" : [
     {
       "identity" : "biguipaging",
@@ -8,6 +8,51 @@
       "state" : {
         "revision" : "40fa6e1683bd47b962e216c05377bfd1b8f760de",
         "version" : "0.0.3"
+      }
+    },
+    {
+      "identity" : "engine",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nathantannar4/Engine",
+      "state" : {
+        "revision" : "e9cf38a8a6e174f248b48a63b9b664315f67e347",
+        "version" : "1.9.5"
+      }
+    },
+    {
+      "identity" : "showtime",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/KaneCheshire/ShowTime",
+      "state" : {
+        "revision" : "f4e976931fc5f9b7a7d011f40c62a250c4ff53ab",
+        "version" : "2.5.3"
+      }
+    },
+    {
+      "identity" : "swift-syntax",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-syntax",
+      "state" : {
+        "revision" : "0687f71944021d616d34d922343dcef086855920",
+        "version" : "600.0.1"
+      }
+    },
+    {
+      "identity" : "transmission",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nathantannar4/Transmission.git",
+      "state" : {
+        "revision" : "4c54a2880cbf5de8e826732ae04bbb89ff0e3bd4",
+        "version" : "1.7.2"
+      }
+    },
+    {
+      "identity" : "turbocharger",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nathantannar4/Turbocharger",
+      "state" : {
+        "revision" : "c504e85b01218f103936feddc0c60c61a1c20803",
+        "version" : "1.3.3"
       }
     },
     {
