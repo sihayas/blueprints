@@ -13,7 +13,8 @@ struct blueprintsApp: App {
 
     var body: some Scene {
         WindowGroup {
-            TextTransitionView()
+            Home()
+                .ignoresSafeArea()
                 .environmentObject(WindowState.shared)
         }
     }

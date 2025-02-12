@@ -4,6 +4,7 @@
 //
 //  Created by decoherence on 1/12/25.
 //
+///  Core idea is a single gesture recognizer controls 2 simultaneous scrollViews to create a uni-scroll effect. Buggy, needs simpler logic.
 //  TODO: - Still needs extra polish and tweaking.
 //        - Fix the weird rubberbanding on expand.
 //        - Fix the un-collapse drag offset speed.
@@ -19,7 +20,7 @@ struct CSVRepresentable<Content: View>: UIViewRepresentable {
         self.content = content()
         self.isInner = isInner
         self.scrollDelegate = delegate
-    }
+    } 
 
     func makeUIView(context: Context) -> CSV {
         /// Create the CollaborativeScrollView in UIKit.
@@ -120,12 +121,14 @@ class CSVDelegate: NSObject, UIScrollViewDelegate, ObservableObject {
 
         if !isExpanded {
             if csv === outerScrollView {
-                if csv.initialContentOffset.y > 0 {
-                    trackDragOffset = false
-                    lockInnerScrollView = true
-                } else {
+                if csv.contentOffset.y <= 0 {
                     /// If dragging starts at top of outer.
                     trackDragOffset = true
+                    csv.bounces = false
+                } else {
+                    trackDragOffset = false
+                    lockInnerScrollView = true
+                    csv.bounces = true
                 }
             }
         }
@@ -135,7 +138,6 @@ class CSVDelegate: NSObject, UIScrollViewDelegate, ObservableObject {
             let isAtBottom = ((innerScrollView!.contentOffset.y + innerScrollView!.frame.size.height) >= innerScrollView!.contentSize.height)
             
             if isAtBottom {
-                trackDragOffset = true
                 lockOuterScrollView = false
             } else {
                 trackDragOffset = false
@@ -146,6 +148,7 @@ class CSVDelegate: NSObject, UIScrollViewDelegate, ObservableObject {
 
     /// Decides if we commit to expanded or collapsed based on final scroll position.
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        
         guard let csv = scrollView as? CSV else { return }
  
         /// Expand and drop lock if the drag gesture was large enough to allow scrolling.
@@ -157,12 +160,12 @@ class CSVDelegate: NSObject, UIScrollViewDelegate, ObservableObject {
                 lockInnerScrollView = dragOffset <= 32
                 csv.bounces = true
             }
-        }
+        } 
  
         /// Collapse if user scrolled outer (means they want to go back).
         if isExpanded, csv === outerScrollView {
             if csv.contentOffset.y > 0 {
-                trackDragOffset = false
+                trackDragOffset = true
                 isExpanded = false
                 dragOffset = 0
                 innerScrollView?.bounces = false
@@ -183,7 +186,7 @@ class CSVDelegate: NSObject, UIScrollViewDelegate, ObservableObject {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         guard let csv = scrollView as? CSV else { return }
         let direction: Direction = csv.lastContentOffset.y > csv.contentOffset.y ? .up : .down
-        
+         
         /// ABORT based on initial direction.
         if initialDirection == .none && csv.contentOffset.y != csv.initialContentOffset.y {
             initialDirection = csv.contentOffset.y > csv.initialContentOffset.y ? .down : .up
@@ -191,23 +194,24 @@ class CSVDelegate: NSObject, UIScrollViewDelegate, ObservableObject {
          
         /// Track pan gesture at rest.
         if trackDragOffset {
+            if dragOffset >= outerBaseHeight {
+                lockInnerScrollView = false
+            }
+             
             let translationY = csv.panGestureRecognizer.translation(in: csv).y
             let delta = translationY - lastTranslationY
   
             if isExpanded {
-                dragOffset += delta
+                dragOffset = max(0, dragOffset + delta)
             } else {
-                dragOffset = translationY
+                dragOffset = max(0, min(outerBaseHeight, translationY))
             }
 
             lastTranslationY = translationY
+             
+            print("Drag offset: \(dragOffset)")
         }
-        
-        print("Drag offset: \(dragOffset)")
 
-
-
-        
         /// Lock outer: force offset to top and hide indicator.
         if lockOuterScrollView {
             outerScrollView!.contentOffset = CGPoint(x: 0, y: 0)
@@ -223,10 +227,11 @@ class CSVDelegate: NSObject, UIScrollViewDelegate, ObservableObject {
         if !isExpanded {
             /// Abort expansion if user drags downward immediately. Works in tandom with
             /// `scrollViewWillBeginDragging`.
-            if initialDirection == .down, !lockInnerScrollView {
+            if initialDirection == .down {
                 lockInnerScrollView = true
+                trackDragOffset = false
             }
-
+ 
             if csv === innerScrollView {
                 let isAtBottom = (csv.contentOffset.y + csv.frame.size.height) >= csv.contentSize.height
                 
@@ -243,10 +248,12 @@ class CSVDelegate: NSObject, UIScrollViewDelegate, ObservableObject {
 
         if isExpanded {
             /// Abort collapse if user scrolls upward immediately. Works in tandom with `scrollViewWillBeginDragging`.
-            if initialDirection == .up, !lockOuterScrollView {
+            if initialDirection == .up {
+                print("aborting collapse")
                 lockOuterScrollView = true
+                trackDragOffset = false
             }
-
+ 
             if csv === innerScrollView {
                 let isAtBottom = (csv.contentOffset.y + csv.frame.size.height) >= csv.contentSize.height
 
@@ -259,13 +266,7 @@ class CSVDelegate: NSObject, UIScrollViewDelegate, ObservableObject {
                     }
                 }
             }
-
-            if !lockOuterScrollView {
-                let currentTranslation = csv.panGestureRecognizer.translation(in: csv).y
-                let translationChange = currentTranslation - previousTranslation
-                dragOffset += translationChange
-                previousTranslation = currentTranslation
-            }
+            
         }
 
         csv.lastContentOffset = csv.contentOffset

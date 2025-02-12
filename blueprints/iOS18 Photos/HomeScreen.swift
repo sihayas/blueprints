@@ -13,7 +13,7 @@ struct Home: View {
     @State var dragOffset: CGFloat = 0
 
     var body: some View {
-        let innerBaseHeight: CGFloat = 64
+        let innerBaseHeight: CGFloat = viewSize.height * 0.7
         let outerBaseHeight = viewSize.height - innerBaseHeight
 
         CSVRepresentable(delegate: csvDelegate) {
@@ -60,16 +60,27 @@ struct OuterContent: View {
     let innerBaseHeight: CGFloat
     let bottomSectionHeight: CGFloat
     
+ 
+    // // Compute bounded offset for outer content
+    // private var boundedOffset: CGFloat {
+    //     // Start at upperSectionHeight (minimum)
+    //     // Can increase up to upperSectionHeight + bottomSectionHeight (maximum)
+    //     let minOffset: CGFloat = innerBaseHeight
+    //     let maxOffset = innerBaseHeight + bottomSectionHeight
+    //     return min(maxOffset, max(minOffset, innerBaseHeight + dragOffset))
+    // }
+
+    
     var body: some View {
         VStack(spacing: 8) {
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 200))], spacing: 16) {
                 ForEach(0..<100) { _ in
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .fill(.blue)
+                        .fill(.clear)
                         .frame(height: 100)
                 }
             }
-            .border(.red)
+            .background(.thinMaterial)
             .padding(.top, innerBaseHeight)
         }
         .frame(
@@ -95,18 +106,44 @@ struct InnerContent: View {
         let minOffset = -bottomSectionHeight
         let maxOffset: CGFloat = 0
         return min(maxOffset, max(minOffset, -bottomSectionHeight + dragOffset))
-    } 
+    }
+    
+    let columns = [GridItem(.adaptive(minimum: 200), spacing: 16)]
 
     var body: some View {
         CSVRepresentable(isInner: true, delegate: scrollDelegate) {
-            VStack(alignment: .trailing, spacing: 16) {
-                ForEach(0..<100) { _ in
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.white)
-                        .frame(height: 100)
+            VStack(spacing: 1) {
+                Grid(horizontalSpacing: 1, verticalSpacing: 1) {
+                    ForEach(1...4, id: \.self ) { _ in
+                        GridRow {
+                            ForEach(1...3, id: \.self) { _ in
+                                Color.white.opacity(0.2)
+                            }
+                        }
+                    }
                 }
+                .aspectRatio(0.75, contentMode: .fit)
+                Grid(horizontalSpacing: 1, verticalSpacing: 1) {
+                    ForEach(1...4, id: \.self ) { _ in
+                        GridRow {
+                            ForEach(1...3, id: \.self) { _ in
+                                Color.white.opacity(0.2)
+                            }
+                        }
+                    }
+                }
+                .aspectRatio(0.75, contentMode: .fit)
+                Grid(horizontalSpacing: 1, verticalSpacing: 1) {
+                    ForEach(1...4, id: \.self ) { _ in
+                        GridRow {
+                            ForEach(1...3, id: \.self) { _ in
+                                Color.white.opacity(0.2)
+                            }
+                        }
+                    }
+                }
+                .aspectRatio(0.75, contentMode: .fit)
             }
-            .padding(.horizontal, 24)
         }
         .frame(height: viewSize.height)
         .offset(y: boundedOffset)

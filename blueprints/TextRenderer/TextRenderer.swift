@@ -3,7 +3,7 @@ import SwiftUI
 struct TextTransitionView: View {
     @State private var isVisible = true
     
-    var body: some View {
+    var body: some View { 
         VStack {
             Spacer()
             
