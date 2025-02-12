@@ -13,7 +13,7 @@ struct blueprintsApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RepliesSheet(size: UIScreen.main.bounds.size, minHomeHeight: 32)
+            TextTransitionView()
                 .environmentObject(WindowState.shared)
         }
     }

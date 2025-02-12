@@ -10,7 +10,6 @@
 		CD8DE6052D49A3A9009CEDAB /* Wave in Frameworks */ = {isa = PBXBuildFile; productRef = CD8DE6042D49A3A9009CEDAB /* Wave */; };
 		CD8DE6082D49A3B2009CEDAB /* BigUIPaging in Frameworks */ = {isa = PBXBuildFile; productRef = CD8DE6072D49A3B2009CEDAB /* BigUIPaging */; };
 		CD8DE6202D49AD33009CEDAB /* Transmission in Frameworks */ = {isa = PBXBuildFile; productRef = CD8DE61F2D49AD33009CEDAB /* Transmission */; };
-		CD8DE62D2D49B85B009CEDAB /* ShowTime in Frameworks */ = {isa = PBXBuildFile; productRef = CD8DE62C2D49B85B009CEDAB /* ShowTime */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -88,7 +87,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CD8DE62D2D49B85B009CEDAB /* ShowTime in Frameworks */,
 				CD8DE6052D49A3A9009CEDAB /* Wave in Frameworks */,
 				CD8DE6202D49AD33009CEDAB /* Transmission in Frameworks */,
 				CD8DE6082D49A3B2009CEDAB /* BigUIPaging in Frameworks */,
@@ -157,7 +155,6 @@
 				CD8DE6042D49A3A9009CEDAB /* Wave */,
 				CD8DE6072D49A3B2009CEDAB /* BigUIPaging */,
 				CD8DE61F2D49AD33009CEDAB /* Transmission */,
-				CD8DE62C2D49B85B009CEDAB /* ShowTime */,
 			);
 			productName = blueprints;
 			productReference = CD8DE5B62D49A2B4009CEDAB /* blueprints.app */;
@@ -245,7 +242,6 @@
 				CD8DE6032D49A3A9009CEDAB /* XCRemoteSwiftPackageReference "Wave" */,
 				CD8DE6062D49A3B2009CEDAB /* XCRemoteSwiftPackageReference "BigUIPaging" */,
 				CD8DE61E2D49AD33009CEDAB /* XCRemoteSwiftPackageReference "Transmission" */,
-				CD8DE62B2D49B85B009CEDAB /* XCRemoteSwiftPackageReference "ShowTime" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CD8DE5B72D49A2B4009CEDAB /* Products */;
@@ -636,14 +632,6 @@
 				minimumVersion = 1.7.2;
 			};
 		};
-		CD8DE62B2D49B85B009CEDAB /* XCRemoteSwiftPackageReference "ShowTime" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/KaneCheshire/ShowTime";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.5.3;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -661,11 +649,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CD8DE61E2D49AD33009CEDAB /* XCRemoteSwiftPackageReference "Transmission" */;
 			productName = Transmission;
-		};
-		CD8DE62C2D49B85B009CEDAB /* ShowTime */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = CD8DE62B2D49B85B009CEDAB /* XCRemoteSwiftPackageReference "ShowTime" */;
-			productName = ShowTime;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -12,18 +12,16 @@
 /// - Removed the scaleEffect modifier from the CustomCardDeckPageView
 /// - Changed the swingOutMultiplier and subsequent xOffset padding multiplier.
 /// - Changed default corner radius.
-/// - Added a 3D rotation tilt.
 /// - Removed the ".CardStyle" property which added a Mask/RoundedRectangle to each card.
 
 import BigUIPaging
 import SwiftUI
 
 #Preview {
-    CardDeckPreview()
-        .frame(width: 240, height: 320)
+    TiltingCardDeckPreview()
 }
 
-struct CardDeckPreview: View {
+struct TiltingCardDeckPreview: View {
     @Namespace private var namespace
     @State private var selection: Int = 1
     
@@ -31,15 +29,29 @@ struct CardDeckPreview: View {
         PageView(selection: $selection) {
             ForEach([1, 2], id: \.self) { index in
                 if index == 1 {
-                    Rectangle()
-                        .fill(.red)
+                        AsyncImage(url: URL(string: "https://i.pinimg.com/474x/02/22/84/02228483124ee40913f9573185d46869.jpg")) { image in
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } placeholder: {
+                            Rectangle()
+                        }
+                        .frame(width: 240, height: 320)
+                        .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
                 } else {
-                    Rectangle()
-                        .fill(.blue)
+                    AsyncImage(url: URL(string: "https://i.pinimg.com/736x/85/ec/f9/85ecf977e88ee0375e8e59a7c1a4caed.jpg")) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        Rectangle()
+                    }
+                    .frame(width: 240, height: 320)
+                    .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
                 }
             }
         }
-        .pageViewStyle(.customCardDeck)
+        .pageViewStyle(.tiltingCardDeck)
         .pageViewCardShadow(.visible)
     }
     
@@ -54,15 +66,15 @@ struct CardDeckPreview: View {
 
 @available(macOS, unavailable)
 @available(iOS 16.0, *)
-public struct CustomCardDeckPageViewStyle: PageViewStyle {
+public struct TiltingCardDeckPageViewStyle: PageViewStyle {
     public init() {}
     
     public func makeBody(configuration: Configuration) -> some View {
-        CustomCardDeckPageView(configuration)
+        TiltingCardDeckPageView(configuration)
     }
 }
 
-struct CustomCardDeckPageView: View {
+struct TiltingCardDeckPageView: View {
     typealias Value = PageViewStyleConfiguration.Value
     typealias Configuration = PageViewStyleConfiguration
     
@@ -97,11 +109,11 @@ struct CustomCardDeckPageView: View {
                     .offset(x: xOffset(for: page.index))
                     .scaleEffect(scale(for: page.index))
                     .rotationEffect(.degrees(rotation(for: page.index)))
-                    // .rotation3DEffect(
-                    //     tiltAngle(for: page.index),
-                    //     axis: (x: 0, y: 1, z: 0),
-                    //     perspective: 0.5
-                    // )
+                    .rotation3DEffect(
+                        tiltAngle(for: page.index),
+                        axis: (x: 0, y: 1, z: 0),
+                        perspective: 0.5
+                    )
                     .shadow(color: shadow(for: page.index), radius: 30, y: 20)
             }
         }
@@ -179,10 +191,11 @@ struct CustomCardDeckPageView: View {
         return -abs(position)
     }
     
-    // Originally, the padding was set to 10. But to show more of the cards "behind",
-    // decrease the value. Subsequently, you have to change the swingOutMultiplier to multiply by double the new value.
+    /// Originally, the padding was set to 10. But to show more of the cards "behind",
+    /// decrease the value. Subsequently, you have to change the swingOutMultiplier to multiply by double the new value.
     func xOffset(for index: Int) -> Double {
-        let cardPaddingFactor = 10.0 // Adjust the value to show more cards "behind"
+        /// Adjust the value to show more cards "behind"
+        let cardPaddingFactor = 10.0
         let padding = containerSize.width / cardPaddingFactor
         let x = (Double(index) - progressIndex) * padding
         let maxIndex = pages.count - 1
@@ -205,10 +218,18 @@ struct CustomCardDeckPageView: View {
     }
     
     func tiltAngle(for index: Int) -> Angle {
-        let maxTilt: Double = -30 // 45 is best with the default padding/swing out multiplier.
-        return .degrees(dragProgress * maxTilt)
+        let maxTilt: Double = 25
+        let cardOffset = Double(index) - progressIndex
+        let tiltMultiplier = cardOffset < 0 ? -1 : 1 // Negative for left, positive for right
+        
+        // Use a sine wave to reverse the tilt after halfway
+        let adjustedProgress = sin(dragProgress * .pi / 2) // Peaks at 0.5, then decreases
+        let tilt = adjustedProgress * maxTilt * Double(tiltMultiplier)
+        
+        print("Tilt for card \(index): \(tilt)")
+        return .degrees(tilt)
     }
-    
+     
     func shadow(for index: Int) -> Color {
         guard shadowDisabled == false else {
             return .clear
@@ -222,54 +243,9 @@ struct CustomCardDeckPageView: View {
 
 // MARK: - Styling options
 
-extension EnvironmentValues {
-    struct CardCornerRadius: EnvironmentKey {
-        static var defaultValue: Double? = nil
-    }
-    
-    var cardCornerRadius: Double? {
-        get { self[CardCornerRadius.self] }
-        set { self[CardCornerRadius.self] = newValue }
-    }
-    
-    struct CardShadowDisabled: EnvironmentKey {
-        static var defaultValue: Bool = false
-    }
-    
-    var cardShadowDisabled: Bool {
-        get { self[CardShadowDisabled.self] }
-        set { self[CardShadowDisabled.self] = newValue }
-    }
-}
-
 @available(macOS, unavailable)
-public extension PageViewStyle where Self == CustomCardDeckPageViewStyle {
-    static var customCardDeck: CustomCardDeckPageViewStyle {
-        CustomCardDeckPageViewStyle()
+public extension PageViewStyle where Self == TiltingCardDeckPageViewStyle {
+    static var tiltingCardDeck: TiltingCardDeckPageViewStyle {
+        TiltingCardDeckPageViewStyle()
     }
-}
-
-extension View {
-    /// Measures the geometry of the attached view.
-    func measure(_ size: Binding<CGSize>) -> some View {
-        background {
-            GeometryReader { reader in
-                Color.clear.preference(
-                    key: ViewSizePreferenceKey.self,
-                    value: reader.size
-                )
-            }
-        }
-        .onPreferenceChange(ViewSizePreferenceKey.self) {
-            size.wrappedValue = $0 ?? .zero
-        }
-    }
-}
-
-struct ViewSizePreferenceKey: PreferenceKey {
-    static func reduce(value: inout CGSize?, nextValue: () -> CGSize?) {
-        value = nextValue() ?? value
-    }
-    
-    static var defaultValue: CGSize? = nil
 }

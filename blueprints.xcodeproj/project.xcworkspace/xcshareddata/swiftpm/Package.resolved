@@ -1,5 +1,5 @@
 {
-  "originHash" : "1008588d37a60ed4162a6656d8375212ba494fb15c0b241278381e52270a0277",
+  "originHash" : "4a4ef4100ebbe3d8fb960ba392076babf7c15da6b9b1ea320c7f77e20c8ec92c",
   "pins" : [
     {
       "identity" : "biguipaging",
@@ -17,15 +17,6 @@
       "state" : {
         "revision" : "e9cf38a8a6e174f248b48a63b9b664315f67e347",
         "version" : "1.9.5"
-      }
-    },
-    {
-      "identity" : "showtime",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/KaneCheshire/ShowTime",
-      "state" : {
-        "revision" : "f4e976931fc5f9b7a7d011f40c62a250c4ff53ab",
-        "version" : "2.5.3"
       }
     },
     {
