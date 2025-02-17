@@ -312,7 +312,7 @@ struct CirclifyPreviewView: View {
                 let scaleFactor = (size.width / 2)
 
                 Circle()
-                    .fill(Color(.systemGray5))
+                    .fill(.blue)
                     .padding(padding)
                     .frame(width: c.r*2*scaleFactor,
                            height: c.r*2*scaleFactor)
@@ -341,7 +341,7 @@ struct CirclifyDemoView: View {
             .animation(.bouncy(), value: values)
             .overlay(
                 Circle()
-                    .stroke(.white.opacity(0.1), lineWidth: 1)
+                    .stroke(.blue.opacity(0.2), lineWidth: 1)
             )
 
             Picker("Operation", selection: $selectedOp) {
