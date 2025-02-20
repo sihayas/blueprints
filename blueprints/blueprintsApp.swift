@@ -13,7 +13,7 @@ struct blueprintsApp: App {
 
     var body: some Scene {
         WindowGroup {
-            CirclifyDemoView()
+            ViewControllerPreview()
                 .ignoresSafeArea()
                 .environmentObject(WindowState.shared)
         }
