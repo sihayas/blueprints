@@ -73,7 +73,7 @@ class GridViewController: UIViewController, UICollectionViewDataSource, UICollec
         return CGSize(width: width, height: width)
     }
     
-    // Record tapped cell and push detail.
+    /// Record tapped cell and push detail.
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         selectedIndexPath = indexPath
         let detailVC = DetailViewController()
@@ -86,7 +86,7 @@ class GridViewController: UIViewController, UICollectionViewDataSource, UICollec
         navigationController?.delegate = self
     }
     
-    // Provide custom animators.
+    /// Provide custom animators.
     func navigationController(_ navigationController: UINavigationController,
                               animationControllerFor operation: UINavigationController.Operation,
                               from fromVC: UIViewController,
@@ -118,6 +118,13 @@ class DetailViewController: UIViewController {
         label.textColor = .white
         label.text = "Item \(selectedItem ?? 0)"
         view.addSubview(label)
+        
+        let image = UIImage(systemName: "person.crop.circle.fill")
+        let imageView = UIImageView(image: image)
+        imageView.tintColor = .white
+        imageView.contentMode = .scaleAspectFit
+        imageView.frame = view.bounds.insetBy(dx: 20, dy: 20)
+        view.addSubview(imageView)
     }
 }
 
@@ -128,6 +135,25 @@ class DetailViewController: UIViewController {
 /// They rotate around the Y-axis (with perspective) and translate to the left offscreen.
 class ZoomPushAnimator: NSObject, UIViewControllerAnimatedTransitioning {
     let gridVC: GridViewController
+
+    // MARK: - Configurations
+    private struct Config {
+        static let placeholderColor = UIColor.white
+        static let maskCornerRadius: CGFloat = 10.0
+        static let overlayOpacity: Float = 0.5
+        static let animationDuration: TimeInterval = 0.4
+        static let springDamping: CGFloat = 2.0
+        static let springVelocity: CGFloat = 0.4
+    }
+    
+    // Parameters for door cell animation
+    private let perspectiveDistance: CGFloat = 500.0
+    private let zTranslation: CGFloat = -150.0
+    private let rotationAngle: CGFloat = CGFloat.pi / 2
+    private let mass: CGFloat = 1.0
+    private let stiffness: CGFloat = 200.0
+    private let damping: CGFloat = 25.0
+    private let initialVelocity: CGFloat = 0.0
     
     init(gridVC: GridViewController) {
         self.gridVC = gridVC
@@ -135,71 +161,361 @@ class ZoomPushAnimator: NSObject, UIViewControllerAnimatedTransitioning {
     }
     
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-        return 0.3
-    }
-     
-    // Helper: Returns the door-open transform for a given cell.
-    func doorOpenTransform(for cell: UIView) -> CATransform3D {
-        var transform = CATransform3DIdentity
-        transform.m34 = 1.0 / 750.0 // Add perspective.
-        // Translate left and also pull the cell toward the viewer along the z-axis.
-        transform = CATransform3DTranslate(transform, -cell.bounds.width * 2, 0, 50)
-        // Rotate by -90° around the y-axis (swing open).
-        transform = CATransform3DRotate(transform, CGFloat.pi, 0, 1, 0)
-        return transform
+        return Config.animationDuration
     }
     
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-        // Ensure we have the detail VC and the tapped cell.
-        guard let toVC = transitionContext.viewController(forKey: .to),
+        pushAnimation(with: transitionContext)
+    }
+    
+    private func setup(with context: UIViewControllerContextTransitioning)
+      -> (fromView: UIView, fromFrame: CGRect, toView: UIView, toFrame: CGRect)? {
+        
+        guard let toVC = context.viewController(forKey: .to),
               let selectedIndexPath = gridVC.selectedIndexPath,
               let tappedCell = gridVC.collectionView.cellForItem(at: selectedIndexPath)
         else {
-            transitionContext.completeTransition(false)
+            return nil
+        }
+        
+        let container = context.containerView
+        let fromFrame = tappedCell.convert(tappedCell.bounds, to: container)
+        let toFrame = context.finalFrame(for: toVC)
+        
+        // Add destination view to container.
+        toVC.view.frame = toFrame
+        container.addSubview(toVC.view)
+        
+        return (fromView: tappedCell, fromFrame: fromFrame, toView: toVC.view, toFrame: toFrame)
+    }
+    
+    private func pushAnimation(with context: UIViewControllerContextTransitioning) {
+        guard let (fromView, fromFrame, toView, toFrame) = setup(with: context) else {
+            context.completeTransition(false)
             return
         }
         
-        let container = transitionContext.containerView
-        let cellFrame = tappedCell.convert(tappedCell.bounds, to: container)
-        let finalFrame = transitionContext.finalFrame(for: toVC)
-        
-        // Place the detail view exactly over the tapped cell.
-        toVC.view.frame = cellFrame
-        container.addSubview(toVC.view)
-        
-        // Animate the other cells in descending order.
-        let otherCells = gridVC.collectionView.visibleCells.filter { $0 != tappedCell }
+        // Start door-cell animations for other cells
+        let container = context.containerView
+        let otherCells = gridVC.collectionView.visibleCells.filter { $0 != fromView }
         let sortedCells = otherCells.sorted { cellA, cellB in
             guard let ipA = gridVC.collectionView.indexPath(for: cellA),
-                  let ipB = gridVC.collectionView.indexPath(for: cellB)
-            else { return false }
+                  let ipB = gridVC.collectionView.indexPath(for: cellB) else {
+                return false
+            }
             return ipA.item > ipB.item
         }
-            
         for (i, cell) in sortedCells.enumerated() {
-            let delay = 0.1 * sqrt(Double(i))
-            UIView.animate(withDuration: 0.7,
-                           delay: delay,
-                           usingSpringWithDamping: 1.0,
-                           initialSpringVelocity: 0.0,
-                           options: [],
-                           animations: {
-                               cell.layer.transform = self.doorOpenTransform(for: cell)
-                           }, completion: nil)
+            let delay = 0.1 * Double(i)
+            animateDoorCell(cell, delay: delay, container: container)
         }
         
-        let detailDelay = 0.0
-        UIView.animate(withDuration: transitionDuration(using: transitionContext),
-                       delay: detailDelay,
-                       options: [.curveEaseIn],
+        // Calculate the transform so the destination view appears to expand from the tapped cell.
+        let transform = CGAffineTransform.transform(
+            parent: toView.frame,
+            suchThatChild: toFrame,
+            aspectFills: fromFrame
+        )
+        toView.transform = transform
+        
+        // Create a mask that will expand during the animation.
+        let maskFrame = fromFrame.aspectFit(to: toFrame)
+        let mask = UIView(frame: maskFrame).then {
+            $0.layer.cornerCurve = .continuous
+            $0.backgroundColor = .black
+        }
+        toView.mask = mask
+        
+        // Add a placeholder over the tapped cell.
+        let placeholder = UIView().then {
+            $0.backgroundColor = Config.placeholderColor
+            $0.frame = fromFrame
+        }
+        fromView.addSubview(placeholder)
+        
+        // Add a dark backdrop to the tapped cell.
+        let backdrop = UIView().then {
+            $0.backgroundColor = .black
+            $0.layer.opacity = 0
+            $0.frame = fromView.bounds
+        }
+        fromView.addSubview(backdrop)
+        
+        // Animate to reveal the destination view while expanding the mask.
+        UIView.animate(withDuration: transitionDuration(using: context),
+                       delay: 0,
+                       usingSpringWithDamping: Config.springDamping,
+                       initialSpringVelocity: Config.springVelocity,
+                       options: [],
                        animations: {
-                           toVC.view.frame = finalFrame
-                       }, completion: nil)
+            toView.transform = .identity
+            mask.frame = toView.bounds
+            mask.layer.cornerRadius = Config.maskCornerRadius
+            backdrop.layer.opacity = Config.overlayOpacity
+        }, completion: { _ in
+            toView.mask = nil
+            backdrop.removeFromSuperview()
+            placeholder.removeFromSuperview()
+            context.completeTransition(true)
+        })
+    }
+    
+    // MARK: - Door Cell Animation (Flipping Other Cells)
+    private func animateDoorCell(_ cell: UIView, delay: TimeInterval, container: UIView) {
+        let springDuration = transitionDuration(using: nil)
+        let mirroredX = mirroredXTranslation(for: cell, in: container)
         
-        // Complete the transition after the detail view animation finishes.
-        DispatchQueue.main.asyncAfter(deadline: .now() + detailDelay + transitionDuration(using: transitionContext)) {
-            transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
+        cell.setAnchorPoint(CGPoint(x: 0, y: 0.5))
+        var initialTransform = CATransform3DIdentity
+        initialTransform.m34 = 1.0 / perspectiveDistance
+        cell.layer.transform = initialTransform
+        
+        let rotationAnim = CASpringAnimation(keyPath: "transform.rotation.y")
+        rotationAnim.fromValue = 0
+        rotationAnim.toValue = rotationAngle
+        rotationAnim.mass = mass
+        rotationAnim.stiffness = stiffness
+        rotationAnim.damping = damping
+        rotationAnim.initialVelocity = initialVelocity
+        rotationAnim.beginTime = CACurrentMediaTime() + delay
+        rotationAnim.duration = springDuration
+        
+        let translationXAnim = CASpringAnimation(keyPath: "transform.translation.x")
+        translationXAnim.fromValue = 0
+        translationXAnim.toValue = -mirroredX
+        translationXAnim.mass = mass
+        translationXAnim.stiffness = stiffness
+        translationXAnim.damping = damping
+        translationXAnim.initialVelocity = initialVelocity
+        translationXAnim.beginTime = CACurrentMediaTime() + delay
+        translationXAnim.duration = springDuration
+        
+        let translationZAnim = CASpringAnimation(keyPath: "transform.translation.z")
+        translationZAnim.fromValue = 0
+        translationZAnim.toValue = zTranslation
+        translationZAnim.mass = mass
+        translationZAnim.stiffness = stiffness
+        translationZAnim.damping = damping
+        translationZAnim.initialVelocity = initialVelocity
+        translationZAnim.beginTime = CACurrentMediaTime() + delay
+        translationZAnim.duration = springDuration
+        
+        cell.layer.add(rotationAnim, forKey: "springRotation")
+        cell.layer.add(translationXAnim, forKey: "springTranslationX")
+        cell.layer.add(translationZAnim, forKey: "springTranslationZ")
+    }
+    
+    private func mirroredXTranslation(for cell: UIView, in container: UIView) -> CGFloat {
+        guard let cellIndex = gridVC.collectionView.indexPath(for: cell as? UICollectionViewCell ?? UICollectionViewCell()),
+              let baseMidX = gridVC.cellBaseMidX[cellIndex]
+        else {
+            return 0
         }
+        let cellCenterX = gridVC.collectionView.convert(CGPoint(x: baseMidX, y: 0), to: container).x
+        let scaleFactor = (perspectiveDistance + zTranslation) / perspectiveDistance
+        return cellCenterX * scaleFactor
+    }
+}
+
+// Utility extension to allow immediate property configuration.
+protocol Then {}
+extension Then where Self: AnyObject {
+    func then(_ block: (Self) -> Void) -> Self {
+        block(self)
+        return self
+    }
+}
+extension NSObject: Then {}
+
+extension CGRect {
+    /// Main  `aspectFit` method that decides whether to fit by width or height.
+    /// Used by the mask view in `SharedTransitionAnimationController`.
+    ///
+    func aspectFit(to frame: CGRect) -> CGRect {
+        let ratio = width / height
+        let frameRatio = frame.width / frame.height
+        
+        // If target frame is narrower than original, fit to width,
+        // else if target frame is wider than original, fit to height
+        if frameRatio < ratio {
+            return aspectFitWidth(to: frame)
+        } else {
+            return aspectFitHeight(to: frame)
+        }
+    }
+
+    // Fits the rect to the target frame's width while maintaining aspect ratio,
+    // and centers the result vertically in the target frame
+    func aspectFitWidth(to frame: CGRect) -> CGRect {
+        let ratio = width / height
+        let height = frame.width * ratio
+        let offsetY = (frame.height - height) / 2 // Center vertically
+        let origin = CGPoint(x: frame.origin.x, y: frame.origin.y + offsetY)
+        let size = CGSize(width: frame.width, height: height)
+        return CGRect(origin: origin, size: size)
+    }
+
+    // Fits the rect to the target frame's height while maintaining aspect ratio,
+    // and cnters the result horizontally in the target frame
+    func aspectFitHeight(to frame: CGRect) -> CGRect {
+        let ratio = height / width
+        let width = frame.height * ratio
+        let offsetX = (frame.width - width) / 2 // Center horizontally
+        let origin = CGPoint(x: frame.origin.x + offsetX, y: frame.origin.y)
+        let size = CGSize(width: width, height: frame.height)
+        return CGRect(origin: origin, size: size)
+    }
+}
+
+extension CGAffineTransform {
+    /// Basic transform that combines scaling and translation
+    ///
+    static func transform(from frameA: CGRect, to frameB: CGRect) -> Self {
+        let scale = scale(from: frameA, to: frameB)
+        let translation = translate(from: frameA, to: frameB)
+        return scale.concatenating(translation)
+    }
+
+    /// Calculates the translation needed to move from center of `frameA` to center of `frameB`
+    ///
+    static func translate(from frameA: CGRect, to frameB: CGRect) -> Self {
+        let centerA = CGPoint(x: frameA.midX, y: frameA.midY)
+        let centerB = CGPoint(x: frameB.midX, y: frameB.midY)
+        return CGAffineTransform(
+            translationX: centerB.x - centerA.x,
+            y: centerB.y - centerA.y
+        )
+    }
+
+    /// Calculates the scale factor needed to make `frameA` match `frameB`'s size
+    ///
+    static func scale(from frameA: CGRect, to frameB: CGRect) -> Self {
+        let scaleX = frameB.width / frameA.width
+        let scaleY = frameB.height / frameA.height
+        return CGAffineTransform(scaleX: scaleX, y: scaleY)
+    }
+
+    /// A function that calculates the transformations required based on the three
+    /// participating rects in a `SharedTransition`.
+    ///
+    /// - `parent`: The container view's frame
+    /// - `child`: The view within the parent that we want to transform
+    /// - `targetRect`: The target frame we want the child to match exactly
+    ///
+    /// For example, given the following two views that we want to transition between:
+    ///
+    /*
+        +-------+    +-------------+
+        |       |    |      B      |
+        |   A   |    +-------------+
+        |       |    |             |
+        +-------+    |             |
+                     |      C      |
+                     |             |
+                     |             |
+                     +-------------+
+                     |      B      |
+                     +-------------+
+    */
+    ///
+    /// The `parent` is B, the `child` is C (the rect we aim to overlap with another rect
+    /// post-transformation), and the `rect` is A (the rect whose geometry we want the child to match
+    /// with exactly).
+    ///
+    /// However, this function is not the one we shoud use, as the aspect ratio alters as A goes to C and back.
+    /// This results in a distorted view since they are stretched and reshaped. The other
+    /// `transform(parent:suchThatChild:aspectFills)` function is better suited for our needs.
+    ///
+    static func transform(parent: CGRect,
+                          suchThatChild child: CGRect,
+                          matches targetRect: CGRect) -> Self
+    {
+        // Calculate scale factors by comparing child rectangle's (C) dimensions
+        // with the target rectangle (A)
+        let scaleX = targetRect.width / child.width
+        let scaleY = targetRect.height / child.height
+
+        // Determine the origin of the animation by aligning the
+        // centers of the rects.
+        //
+        // First, we match the center of the parent rect to the target rect.
+        //
+        // Second, we adjust the offset so that the child rect's center is aligned
+        // with the target (calculated as the diff between the centers of the
+        // parent and child rect in their scaled form).
+        //
+        // Without this, the view will always transition from the center of
+        // the screen, instead of from where the transition should begin (i.e.
+        // from a cell in a collection view).
+        let offsetX = targetRect.midX - parent.midX
+        let offsetY = targetRect.midY - parent.midY
+        let centerOffsetX = (parent.midX - child.midX) * scaleX
+        let centerOffsetY = (parent.midY - child.midY) * scaleY
+        let translateX = offsetX + centerOffsetX
+        let translateY = offsetY + centerOffsetY
+
+        // Finally, create and combine the transformations into one
+        // CGAffineTransform, ready to be applied to our views.
+        let scaleTransform = CGAffineTransform(scaleX: scaleX, y: scaleY)
+        let translateTransform = CGAffineTransform(translationX: translateX,
+                                                   y: translateY)
+        
+        return scaleTransform.concatenating(translateTransform)
+    }
+
+    /// A similar transform function as the one above, but employing `aspectFill` to circumvent
+    /// distortion of views during transition. With this, the child rect retains its aspect ratio while being transformed
+    /// to fit perfectly within the target rect.
+    ///
+    /// However, this introduces another problem: parts of the child rect now extend beyond the bounds of the target rect
+    /// and this is especially visible during the last few frames of the animation. We will need to apply a mask during the
+    /// transition to hide this. Please see `CGRect+Extensions.swift` for the relevant utility functions.
+    ///
+    static func transform(parent: CGRect,
+                          suchThatChild child: CGRect,
+                          aspectFills targetRect: CGRect) -> Self
+    {
+        // Calculate aspect ratio of both child and target rect frames
+        let childRatio = child.width / child.height
+        let rectRatio = targetRect.width / targetRect.height
+
+        let scaleX = targetRect.width / child.width
+        let scaleY = targetRect.height / child.height
+
+        // Determine the scaling dimension based on a comparison of the two ratios,
+        // ensuring we maintain the original aspect while fitting the rectangle.
+        let scaleFactor = rectRatio < childRatio ? scaleY : scaleX
+
+        let offsetX = targetRect.midX - parent.midX
+        let offsetY = targetRect.midY - parent.midY
+        let centerOffsetX = (parent.midX - child.midX) * scaleFactor
+        let centerOffsetY = (parent.midY - child.midY) * scaleFactor
+
+        let translateX = offsetX + centerOffsetX
+        let translateY = offsetY + centerOffsetY
+
+        let scaleTransform = CGAffineTransform(scaleX: scaleFactor, y: scaleFactor)
+        let translateTransform = CGAffineTransform(translationX: translateX,
+                                                   y: translateY)
+
+        return scaleTransform.concatenating(translateTransform)
+    }
+    
+    /// Transform a frame into another frame. Assumes they're the same aspect ratio.
+    static func transform(originalFrame: CGRect,
+                          toTargetFrame targetFrame: CGRect) -> Self
+    {
+        // Width or height doesn't matter if they're the same aspect ratio
+        let scaleFactor = targetFrame.width / originalFrame.width
+        
+        let offsetX = targetFrame.midX - originalFrame.midX
+        let offsetY = targetFrame.midY - originalFrame.midY
+        
+        let scaleTransform = CGAffineTransform(scaleX: scaleFactor, y: scaleFactor)
+        let translateTransform = CGAffineTransform(translationX: offsetX,
+                                                   y: offsetY)
+        
+        return scaleTransform.concatenating(translateTransform)
     }
 }
 
@@ -209,6 +525,14 @@ class ZoomPushAnimator: NSObject, UIViewControllerAnimatedTransitioning {
 /// by reversing the door-swing effect in descending order.
 class ReverseZoomPopAnimator: NSObject, UIViewControllerAnimatedTransitioning {
     let gridVC: GridViewController
+    
+    private let perspectiveDistance: CGFloat = 500.0
+    private let zTranslation: CGFloat = 850.0
+    private let rotationAngle: CGFloat = -CGFloat.pi
+    private let mass: CGFloat = 1.0
+    private let stiffness: CGFloat = 200.0
+    private let damping: CGFloat = 25.0
+    private let initialVelocity: CGFloat = 0.0
 
     init(gridVC: GridViewController) {
         self.gridVC = gridVC
@@ -218,62 +542,41 @@ class ReverseZoomPopAnimator: NSObject, UIViewControllerAnimatedTransitioning {
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         return 0.6
     }
-
+    
+    /// Helper: Determine the cell's offset position as if the screen were mirorred horizontally, considering perspective and zTranslation.
+    private func mirroredXTranslation(for cell: UIView, in container: UIView) -> CGFloat {
+        guard let indexPath = gridVC.collectionView.indexPath(for: cell as? UICollectionViewCell ?? UICollectionViewCell()),
+              let baseMidX = gridVC.cellBaseMidX[indexPath] else {
+            return 0
+        }
+        let cellCenterX = gridVC.collectionView.convert(CGPoint(x: baseMidX, y: 0), to: container).x
+        
+        /// Based on the cell's resting position in the grid, calculate how much you need to translate it to the left to technically be mirrorred horizontally.
+        let scaleFactor = (perspectiveDistance + zTranslation) / perspectiveDistance
+        return cellCenterX * scaleFactor
+    }
+    
+    /// Sets the cell's initial off–screen state.
     func doorOpenTransform(for cell: UIView, in container: UIView) -> CATransform3D {
         var transform = CATransform3DIdentity
         cell.setAnchorPoint(CGPoint(x: 0, y: 0.5))
-        transform.m34 = 1.0 / 250.0  // Perspective: d = 250
+        transform.m34 = 1.0 / perspectiveDistance
         
-        // Get the index path for the cell and its base midX
-        guard let indexPath = gridVC.collectionView.indexPath(for: cell as? UICollectionViewCell ?? UICollectionViewCell()),
-              let baseMidX = gridVC.cellBaseMidX[indexPath] else {
-            return transform // Return identity if no base midX
-        }
+        let adjustedX = mirroredXTranslation(for: cell, in: container)
         
-        // Get the cell's center in container coordinates.
-        let cellCenterX = gridVC.collectionView.convert(CGPoint(x: baseMidX, y: 0), to: container).x
-        // Instead of doubling, we simply use cellCenterX.
-        let mirroredXTranslation = cellCenterX
-
-        // Account for perspective shrinkage.
-        let perspectiveDistance: CGFloat = 250.0
-        let zTranslation: CGFloat = 500.0
-        let scaleFactor = (perspectiveDistance + zTranslation) / perspectiveDistance  // e.g. 750/250 = 3
-        let adjustedXTranslation = mirroredXTranslation * scaleFactor
-        
-        print("Cell \(indexPath.item + 1): cellCenterX = \(cellCenterX), mirroredXTranslation = \(mirroredXTranslation), adjustedXTranslation = \(adjustedXTranslation)")
-        
-        transform = CATransform3DTranslate(transform, -adjustedXTranslation, 0, zTranslation)
-        transform = CATransform3DRotate(transform, -CGFloat.pi, 0, 1, 0)
+        transform = CATransform3DTranslate(transform, -adjustedX, 0, zTranslation)
+        transform = CATransform3DRotate(transform, rotationAngle, 0, 1, 0)
         return transform
     }
-
+    
+    /// Animates the cell from the off–screen state (set by doorOpenTransform) back to its original position.
     func animateDoorCell(_ cell: UIView, delay: TimeInterval, container: UIView) {
         let springDuration = transitionDuration(using: nil)
         
-        let mass: CGFloat = 1
-        let stiffness: CGFloat = 200
-        let damping: CGFloat = 40
-        let initialVelocity: CGFloat = 0
-
-        guard let indexPath = gridVC.collectionView.indexPath(for: cell as? UICollectionViewCell ?? UICollectionViewCell()),
-              let baseMidX = gridVC.cellBaseMidX[indexPath] else {
-            return
-        }
-        
-        // Get the cell's center in container coordinates.
-        let cellCenterX = gridVC.collectionView.convert(CGPoint(x: baseMidX, y: 0), to: container).x
-        // Instead of doubling, we simply use cellCenterX.
-        let mirroredXTranslation = cellCenterX
-
-        // Account for perspective shrinkage.
-        let perspectiveDistance: CGFloat = 250.0
-        let zTranslation: CGFloat = 500.0
-        let scaleFactor = (perspectiveDistance + zTranslation) / perspectiveDistance  // e.g. 750/250 = 3
-        let adjustedXTranslation = mirroredXTranslation * scaleFactor
+        let mirroredX = mirroredXTranslation(for: cell, in: container)
         
         let rotationAnim = CASpringAnimation(keyPath: "transform.rotation.y")
-        rotationAnim.fromValue = -CGFloat.pi
+        rotationAnim.fromValue = rotationAngle
         rotationAnim.toValue = 0
         rotationAnim.mass = mass
         rotationAnim.stiffness = stiffness
@@ -283,9 +586,9 @@ class ReverseZoomPopAnimator: NSObject, UIViewControllerAnimatedTransitioning {
         rotationAnim.duration = springDuration
         rotationAnim.fillMode = .forwards
         rotationAnim.isRemovedOnCompletion = false
-
+        
         let translationXAnim = CASpringAnimation(keyPath: "transform.translation.x")
-        translationXAnim.fromValue = -adjustedXTranslation
+        translationXAnim.fromValue = -mirroredX
         translationXAnim.toValue = 0
         translationXAnim.mass = mass
         translationXAnim.stiffness = stiffness
@@ -295,9 +598,9 @@ class ReverseZoomPopAnimator: NSObject, UIViewControllerAnimatedTransitioning {
         translationXAnim.duration = springDuration
         translationXAnim.fillMode = .forwards
         translationXAnim.isRemovedOnCompletion = false
-
+        
         let translationZAnim = CASpringAnimation(keyPath: "transform.translation.z")
-        translationZAnim.fromValue = 500
+        translationZAnim.fromValue = zTranslation
         translationZAnim.toValue = 0
         translationZAnim.mass = mass
         translationZAnim.stiffness = stiffness
@@ -307,16 +610,18 @@ class ReverseZoomPopAnimator: NSObject, UIViewControllerAnimatedTransitioning {
         translationZAnim.duration = springDuration
         translationZAnim.fillMode = .forwards
         translationZAnim.isRemovedOnCompletion = false
-
+        
         cell.layer.add(rotationAnim, forKey: "springRotation")
         cell.layer.add(translationXAnim, forKey: "springTranslationX")
         cell.layer.add(translationZAnim, forKey: "springTranslationZ")
-
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + delay + springDuration) {
-            cell.layer.transform = CATransform3DIdentity
+            var finalTransform = CATransform3DIdentity
+            finalTransform.m34 = 1.0 / self.perspectiveDistance
+            cell.layer.transform = finalTransform
         }
     }
-
+    
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
         guard let fromVC = transitionContext.viewController(forKey: .from),
               let selectedIndexPath = gridVC.selectedIndexPath,
@@ -325,36 +630,36 @@ class ReverseZoomPopAnimator: NSObject, UIViewControllerAnimatedTransitioning {
             transitionContext.completeTransition(false)
             return
         }
-
+        
         let container = transitionContext.containerView
         let cellFrame = tappedCell.convert(tappedCell.bounds, to: container)
-
+        
         if let toVC = transitionContext.viewController(forKey: .to) {
             container.insertSubview(toVC.view, belowSubview: fromVC.view)
         }
-
+        
         UIView.animate(withDuration: transitionDuration(using: transitionContext), animations: {
             fromVC.view.frame = cellFrame
             fromVC.view.alpha = 0
         })
-
+        
         let otherCells = gridVC.collectionView.visibleCells.filter { $0 != tappedCell }
         for cell in otherCells {
             cell.layer.transform = doorOpenTransform(for: cell, in: container)
         }
-
+        
         let sortedCells = otherCells.sorted { cellA, cellB in
             guard let ipA = gridVC.collectionView.indexPath(for: cellA),
                   let ipB = gridVC.collectionView.indexPath(for: cellB)
             else { return false }
             return ipA.item > ipB.item
         }
-
+        
         for (i, cell) in sortedCells.enumerated() {
-            let delay = 0.05 * Double(i)
+            let delay = 0.1 * Double(i)
             animateDoorCell(cell, delay: delay, container: container)
         }
-
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + transitionDuration(using: transitionContext)) {
             fromVC.view.alpha = 1
             transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
