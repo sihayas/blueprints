@@ -270,7 +270,7 @@ class FlipPushAnimator: NSObject, UIViewControllerAnimatedTransitioning {
          
         // Store original frame for reference
         let originalFrame = cell.frame
-        
+         
         // Set new anchor point
         cellLayer.anchorPoint = CGPoint(x: anchorX, y: 0.5)
         
@@ -286,7 +286,7 @@ class FlipPushAnimator: NSObject, UIViewControllerAnimatedTransitioning {
         // Final transform with rotation
         var finalTransform = initialTransform
         finalTransform = CATransform3DRotate(finalTransform, rotationAngle, 0, 1, 0)
-        
+         
         // Apply initial transform
         cellLayer.transform = initialTransform
         
