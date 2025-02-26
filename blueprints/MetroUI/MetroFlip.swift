@@ -175,6 +175,18 @@ class FlipPushAnimator: NSObject, UIViewControllerAnimatedTransitioning {
         let container = context.containerView
         gridVC.collectionView.backgroundColor = .clear
         
+        // Apply perspective to both collection views
+        var containerTransform = CATransform3DIdentity
+        containerTransform.m34 = -1.0 / perspectiveDistance
+        gridVC.collectionView.layer.sublayerTransform = containerTransform
+        toVC.collectionView?.layer.sublayerTransform = containerTransform
+        
+        // Set the anchor point to the vertical center
+        let oldBounds = gridVC.collectionView.layer.bounds
+        let oldPosition = gridVC.collectionView.layer.position
+        gridVC.collectionView.layer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+        gridVC.collectionView.layer.position = CGPoint(x: oldPosition.x, y: container.bounds.height / 2)
+         
         let nonTappedCells = gridVC.collectionView.visibleCells.filter { $0 != tappedCell }
         let xFactorOut: CGFloat = -0.00047143
         let yFactorOut: CGFloat = 0.001714
@@ -222,40 +234,26 @@ class FlipPushAnimator: NSObject, UIViewControllerAnimatedTransitioning {
                 context.completeTransition(!context.transitionWasCancelled)
             }
         }
-    } 
-      
+    }
+    
     private func animateDoorCellOut(_ cell: UIView, delay: TimeInterval, container: UIView) {
         let cellLayer = cell.layer
-        let containerMidY = container.bounds.height / 2
-        let positionInContainer = cell.convert(CGPoint.zero, to: container)
-        let cellTopInContainer = positionInContainer.y
-        let localOffsetY = cellTopInContainer - containerMidY
-        
+         
+        // Calculate anchor point based on container's left edge
         let containerLeftEdgeInCell = cell.convert(CGPoint.zero, from: container)
         let anchorX = containerLeftEdgeInCell.x / cell.bounds.width
         let oldAnchorPoint = cellLayer.anchorPoint
         let oldPosition = cellLayer.position
-        
+         
+        // Set anchor point for rotation
         cellLayer.anchorPoint = CGPoint(x: anchorX, y: 0.5)
-        let positionShiftX = (anchorX - oldAnchorPoint.x) * cell.bounds.width
+        let positionShiftX = (anchorX - oldAnchorPoint.x) *  cell.bounds.width
         cellLayer.position = CGPoint(x: oldPosition.x + positionShiftX, y: oldPosition.y)
-        
-        var initialTransform = CATransform3DIdentity
-        initialTransform.m34 = -1.0 / perspectiveDistance
-        initialTransform = CATransform3DTranslate(initialTransform, 0, localOffsetY, 0)
-        
-        var finalTransform = initialTransform
-        finalTransform = CATransform3DRotate(finalTransform, rotationAngle, 0, 1, 0)
-        
-        cellLayer.transform = initialTransform
-        let newPositionInContainer = cell.convert(CGPoint.zero, to: container)
-        let yOffsetAfterTransform = positionInContainer.y - newPositionInContainer.y
-        cellLayer.position.y = oldPosition.y + yOffsetAfterTransform
         
         let rotationStart = CACurrentMediaTime() + delay
         let rotationAnim = CABasicAnimation(keyPath: "transform")
-        rotationAnim.fromValue = initialTransform
-        rotationAnim.toValue = finalTransform
+        rotationAnim.fromValue = CATransform3DIdentity
+        rotationAnim.toValue = CATransform3DRotate(CATransform3DIdentity, rotationAngle, 0, 1, 0)
         rotationAnim.duration = Config.cellFlipOutDuration
         rotationAnim.timingFunction = CAMediaTimingFunction(controlPoints: 0.95, 0.0, 1.0, 1.0)
         rotationAnim.beginTime = rotationStart
@@ -276,47 +274,25 @@ class FlipPushAnimator: NSObject, UIViewControllerAnimatedTransitioning {
     
     private func animateDoorCellIn(_ cell: UIView, delay: TimeInterval, container: UIView) {
         let cellLayer = cell.layer
-        let containerMidY = container.bounds.height / 2
-        let positionInContainer = cell.convert(CGPoint.zero, to: container)
-        let cellTopInContainer = positionInContainer.y
-        let localOffsetY = cellTopInContainer - containerMidY
         
-        // Set anchor point consistently with animateDoorCellOut
+        // Calculate anchor point based on container's left edge
         let containerLeftEdgeInCell = cell.convert(CGPoint.zero, from: container)
         let anchorX = containerLeftEdgeInCell.x / cell.bounds.width
         let oldAnchorPoint = cellLayer.anchorPoint
         let oldPosition = cellLayer.position
         
-        // Store original opacity and set to 0 initially
-        let originalOpacity = cellLayer.opacity
-        cellLayer.opacity = 0
-        
+        // Set anchor point for rotation
         cellLayer.anchorPoint = CGPoint(x: anchorX, y: 0.5)
         let positionShiftX = (anchorX - oldAnchorPoint.x) * cell.bounds.width
         cellLayer.position = CGPoint(x: oldPosition.x + positionShiftX, y: oldPosition.y)
         
-        // Create transformation matrices similarly to the animateDoorCellOut method
-        var initialTransform = CATransform3DIdentity
-        initialTransform.m34 = -1.0 / perspectiveDistance
-        initialTransform = CATransform3DTranslate(initialTransform, 0, localOffsetY, 0)
-        initialTransform = CATransform3DRotate(initialTransform, 80 * .pi / 180, 0, 1, 0)
+        // Create simplified transforms without individual perspective
+        let initialTransform = CATransform3DRotate(CATransform3DIdentity, 80 * .pi / 180, 0, 1, 0) // Start at 80º
+        let finalTransform = CATransform3DIdentity // End at 0º
         
-        var finalTransform = CATransform3DIdentity
-        finalTransform.m34 = -1.0 / perspectiveDistance
-        finalTransform = CATransform3DTranslate(finalTransform, 0, localOffsetY, 0)
-        
-        // Apply initial transform
         cellLayer.transform = initialTransform
         
-        // This is the key fix - ensuring position is maintained properly
-        let newPositionInContainer = cell.convert(CGPoint.zero, to: container)
-        let yOffsetAfterTransform = positionInContainer.y - newPositionInContainer.y
-        cellLayer.position.y = oldPosition.y + yOffsetAfterTransform
-        
-        // Set up animations
         let rotationStart = CACurrentMediaTime() + delay
-        
-        // Transform animation
         let rotationAnim = CABasicAnimation(keyPath: "transform")
         rotationAnim.fromValue = initialTransform
         rotationAnim.toValue = finalTransform
@@ -325,12 +301,11 @@ class FlipPushAnimator: NSObject, UIViewControllerAnimatedTransitioning {
         rotationAnim.beginTime = rotationStart
         rotationAnim.fillMode = .forwards
         rotationAnim.isRemovedOnCompletion = false
-        
-        // Opacity animation
+         
         let opacityAnim = CABasicAnimation(keyPath: "opacity")
         opacityAnim.fromValue = 0.0
-        opacityAnim.toValue = originalOpacity
-        opacityAnim.duration = Config.cellFlipInDuration - Config.opacityDelay
+        opacityAnim.toValue = 1.0
+        opacityAnim.duration = 0.01
         opacityAnim.timingFunction = CAMediaTimingFunction(controlPoints: 0.5, 0.0, 0.1, 1.0)
         opacityAnim.beginTime = rotationStart + Config.opacityDelay
         opacityAnim.fillMode = .forwards
@@ -340,7 +315,7 @@ class FlipPushAnimator: NSObject, UIViewControllerAnimatedTransitioning {
         cellLayer.add(opacityAnim, forKey: "opacityAnimation")
     }
 }
- 
+
 class Random {
     private let generator: UInt64
     
