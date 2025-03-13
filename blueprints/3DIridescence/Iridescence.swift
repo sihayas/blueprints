@@ -97,11 +97,11 @@ struct SoundScreen: View {
                          showTextAlert = true
                      }) {
                          Text("Change Text")
-                             .foregroundColor(.white)
+                             .foregroundColor(.black)
                              .padding(.horizontal, 16)
                              .padding(.vertical, 8)
-                             .background(Color.blue)
-                             .cornerRadius(8)
+                             .background(Color.white)
+                             .cornerRadius(24)
                      }
                      .padding(.bottom, 16)
                      
@@ -371,7 +371,7 @@ struct SliderControl: View {
             Slider(value: $value, in: range)
                 .tint(
                     LinearGradient(
-                        colors: [.purple, .blue],
+                        colors: [.white, .blue],
                         startPoint: .leading,
                         endPoint: .trailing
                     )

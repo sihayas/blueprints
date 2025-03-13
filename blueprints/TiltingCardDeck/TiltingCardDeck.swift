@@ -27,7 +27,7 @@ struct TiltingCardDeckPreview: View {
     
     var body: some View {
         PageView(selection: $selection) {
-            ForEach([1, 2], id: \.self) { index in
+            ForEach([1, 2, 3], id: \.self) { index in
                 if index == 1 {
                         AsyncImage(url: URL(string: "https://i.pinimg.com/474x/02/22/84/02228483124ee40913f9573185d46869.jpg")) { image in
                             image
@@ -38,8 +38,20 @@ struct TiltingCardDeckPreview: View {
                         }
                         .frame(width: 240, height: 320)
                         .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
-                } else {
+                } else if index == 2 {
                     AsyncImage(url: URL(string: "https://i.pinimg.com/736x/85/ec/f9/85ecf977e88ee0375e8e59a7c1a4caed.jpg")) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        Rectangle()
+                    }
+                    .frame(width: 240, height: 320)
+                    .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+                } else {
+
+                    
+                    AsyncImage(url: URL(string: "https://www.areaware.com/cdn/shop/articles/SusanKare_by_Norman_Seeff_square_2048x2048.jpg?v=1648756736")) { image in
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fill)

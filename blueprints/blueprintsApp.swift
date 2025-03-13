@@ -13,7 +13,7 @@ struct blueprintsApp: App {
 
     var body: some Scene {
         WindowGroup {
-            FlipViewControllerPreview()
+            TextTransitionView()
                 .ignoresSafeArea()
                 .environmentObject(WindowState.shared)
         }

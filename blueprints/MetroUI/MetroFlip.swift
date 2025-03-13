@@ -48,12 +48,17 @@ class FlipGridViewController: UIViewController, UICollectionViewDataSource, UICo
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath)
-        cell.backgroundColor = cellColor ?? .systemBlue
+        
+        // Generate a random gray shade starting from 0.5 baseline
+        let baseline: CGFloat = 0.5 // Minimum gray value (medium gray)
+        let grayValue = baseline + CGFloat.random(in: 0.0 ... 0.5) // Random from 0.5 to 1.0
+        cell.backgroundColor = UIColor(white: grayValue, alpha: 1.0)
+        
         cell.contentView.subviews.forEach { $0.removeFromSuperview() }
             
         let label = UILabel(frame: cell.bounds)
         label.text = "\(items[indexPath.item])"
-        label.textColor = .white
+        label.textColor = grayValue > 0.75 ? .black : .white // Adjust text color for readability
         label.textAlignment = .center
         cell.contentView.addSubview(label)
             

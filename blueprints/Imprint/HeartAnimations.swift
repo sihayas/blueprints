@@ -19,7 +19,7 @@ struct AnimationValues {
 
 struct HeartbeatAnimatorModifier: ViewModifier {
     var triggerKeyframe: Int
-    
+
     func body(content: Content) -> some View {
         content.keyframeAnimator(initialValue: AnimationValues(), trigger: triggerKeyframe) { content, value in
             content
@@ -58,9 +58,9 @@ struct HeartbeatAnimatorModifier: ViewModifier {
             }
             KeyframeTrack(\.scale) {
                 LinearKeyframe(1.0, duration: 0.5)
-                SpringKeyframe(1.8, duration: 0.15, spring: .bouncy)
+                SpringKeyframe(3.6, duration: 0.15, spring: .bouncy)
                 SpringKeyframe(0.6, duration: 0.15, spring: .bouncy)
-                SpringKeyframe(3.5, duration: 0.18, spring: .bouncy)
+                SpringKeyframe(7.0, duration: 0.18, spring: .bouncy)
                 SpringKeyframe(0.9, duration: 0.15, spring: .bouncy)
                 SpringKeyframe(1.2, duration: 0.15, spring: .bouncy)
                 LinearKeyframe(1.0, duration: 0.2)
@@ -127,10 +127,21 @@ struct HeartbreakLeftAnimatorModifier: ViewModifier {
                 SpringKeyframe(-90.0, duration: 1.0, spring: .bouncy)
                 SpringKeyframe(0.0, spring: .bouncy)
             }
+
             KeyframeTrack(\.horizontalTranslation) {
-                LinearKeyframe(0.0, duration: 0.75)
-                SpringKeyframe(-2.0, duration: 1.0, spring: .bouncy)
+                LinearKeyframe(0.0, duration: 0.8)
+                SpringKeyframe(-8.0, duration: 1.0, spring: .bouncy)
                 SpringKeyframe(-2.0, spring: .bouncy)
+            }
+            KeyframeTrack(\.scale) {
+                LinearKeyframe(1.0, duration: 0.5)
+                LinearKeyframe(3.5, duration: 0.15)
+
+
+                SpringKeyframe(3.5, duration: 0.15, spring: .bouncy)
+
+                LinearKeyframe(3.5, duration: 1.0)
+                LinearKeyframe(1.0, duration: 0.2)
             }
         }
     }
@@ -161,7 +172,7 @@ struct HeartbreakRightAnimatorModifier: ViewModifier {
                 CubicKeyframe(.degrees(-16), duration: 0.125)
                 CubicKeyframe(.degrees(16), duration: 0.125)
                 CubicKeyframe(.zero, duration: 0.125)
-            }
+            } 
             KeyframeTrack(\.verticalStretch) {
                 CubicKeyframe(1.0, duration: 0.1)
                 CubicKeyframe(0.3, duration: 0.15)
@@ -189,25 +200,34 @@ struct HeartbreakRightAnimatorModifier: ViewModifier {
                 SpringKeyframe(0.0, spring: .bouncy)
             }
             KeyframeTrack(\.horizontalTranslation) {
-                LinearKeyframe(0.0, duration: 0.75)
-                SpringKeyframe(2.0, duration: 1.0, spring: .bouncy)
+                LinearKeyframe(0.0, duration: 0.8)
+                SpringKeyframe(8.0, duration: 1.0, spring: .bouncy)
                 SpringKeyframe(2.0, spring: .bouncy)
+            }
+            KeyframeTrack(\.scale) {
+                LinearKeyframe(1.0, duration: 0.5)
+                LinearKeyframe(3.5, duration: 0.15)
+
+                SpringKeyframe(3.5, duration: 0.15, spring: .bouncy)
+
+                LinearKeyframe(3.5, duration: 1.0)
+
+                LinearKeyframe(1.0, duration: 0.2)
             }
         }
     }
 }
 
-
 extension View {
     func applyHeartbeatAnimator(triggerKeyframe: Int) -> some View {
-        self.modifier(HeartbeatAnimatorModifier(triggerKeyframe: triggerKeyframe))
+        modifier(HeartbeatAnimatorModifier(triggerKeyframe: triggerKeyframe))
     }
-    
+
     func applyHeartbreakLeftAnimator(triggerKeyframe: Int) -> some View {
-        self.modifier(HeartbreakLeftAnimatorModifier(triggerKeyframe: triggerKeyframe))
+        modifier(HeartbreakLeftAnimatorModifier(triggerKeyframe: triggerKeyframe))
     }
-    
+
     func applyHeartbreakRightAnimator(triggerKeyframe: Int) -> some View {
-        self.modifier(HeartbreakRightAnimatorModifier(triggerKeyframe: triggerKeyframe))
+        modifier(HeartbreakRightAnimatorModifier(triggerKeyframe: triggerKeyframe))
     }
 }

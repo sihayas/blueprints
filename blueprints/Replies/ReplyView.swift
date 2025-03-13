@@ -10,6 +10,9 @@ import SwiftUI
 struct ReplyView: View {
     let reply: Reply
     let isCollapsed: Bool
+    
+    // Store a random gray value for the avatar circle
+    @State private var avatarGrayValue: Double = 0.5 + Double.random(in: 0.0 ... 0.5)
 
     var body: some View {
         let background: Color = isCollapsed ? .black : Color(UIColor.systemGray6)
@@ -18,7 +21,7 @@ struct ReplyView: View {
         VStack(alignment: .leading) {
             HStack(alignment: .bottom, spacing: 0) {
                 Circle()
-                    .fill(reply.avatarColor)
+                    .fill(Color(white: avatarGrayValue, opacity: 1.0)) // Use random gray instead of avatarColor
                     .frame(width: 32, height: 32)
 
                 VStack(alignment: .leading, spacing: 2) {

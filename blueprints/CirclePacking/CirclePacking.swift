@@ -296,45 +296,26 @@ enum Operation: String, CaseIterable, Identifiable {
     var id: Self { self }
 }
 
-struct CirclifyPreviewView: View {
-    let size: CGSize
-    let values: [Double]
-    let padding: CGFloat
-
-    @State private var rotate = false
-
-    var body: some View {
-        let packed = circlify(values)
-
-        ZStack {
-            ForEach(packed.indices, id: \.self) { i in
-                let c = packed[i]
-                let scaleFactor = (size.width / 2)
-
-                Circle()
-                    .fill(.blue)
-                    .padding(padding)
-                    .frame(width: c.r*2*scaleFactor,
-                           height: c.r*2*scaleFactor)
-                    .offset(x: c.x*scaleFactor, y: c.y*scaleFactor)
-            }
-        }
-        .frame(width: size.width, height: size.height)
-        .background(.clear, in: Circle())
-        // .rotationEffect(.degrees(225))
-    }
-}
-
 struct CirclifyDemoView: View {
     @State private var values: [Double] = [1.0]
+    @State private var grayValues: [Double] = [0.5] // Store gray shades
     @State private var selectedOp: Operation? = nil
+    @State private var isAdding: Bool = false // Track continuous adding
+
+    enum Operation: String, CaseIterable, Identifiable {
+        case add = "Add"
+        case remove = "Remove"
+        
+        var id: String { rawValue }
+    }
 
     var body: some View {
         VStack {
             CirclifyPreviewView(
                 size: CGSize(width: 300, height: 300),
                 values: values,
-                padding: 2
+                padding: 2,
+                grayValues: grayValues // Pass gray values
             )
             .frame(width: 300, height: 300)
             .rotationEffect(.degrees(225))
@@ -356,17 +337,72 @@ struct CirclifyDemoView: View {
                 guard let op = op else { return }
                 withAnimation {
                     if op == .add {
-                        let newValue = Double.random(in: 0.3 ... 1.0)
-                        values.append(newValue)
-                        values.sort(by: >)
+                        if !isAdding && values.count < 100 {
+                            isAdding = true
+                            addCirclesContinuously()
+                        }
                     } else if op == .remove {
-                        if !values.isEmpty { values.removeLast() }
+                        if !values.isEmpty {
+                            values.removeLast()
+                            grayValues.removeLast()
+                        }
                     }
                 }
-                // Reset selection to allow repeated tapping.
+                // Reset selection to allow repeated tapping
                 DispatchQueue.main.async { selectedOp = nil }
             }
         }
+    }
+    
+    // Function to add circles continuously up to 100
+    private func addCirclesContinuously() {
+        guard isAdding else { return }
+        if values.count < 50 {
+            let newValue = Double.random(in: 0.3 ... 1.0)
+            let newGray = 0.5 + Double.random(in: 0.0 ... 0.5) // Random gray from 0.5 to 1.0
+            values.append(newValue)
+            grayValues.append(newGray)
+            values.sort(by: >)
+            
+            // Continue adding with a delay
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                withAnimation {
+                    addCirclesContinuously()
+                }
+            }
+        } else {
+            isAdding = false // Stop when reaching 100
+        }
+    }
+}
+
+struct CirclifyPreviewView: View {
+    let size: CGSize
+    let values: [Double]
+    let padding: CGFloat
+    let grayValues: [Double] // Add gray values parameter
+
+    @State private var rotate = false
+
+    var body: some View {
+        let packed = circlify(values) // Assuming this returns [Circle] with r, x, y
+
+        ZStack {
+            ForEach(packed.indices, id: \.self) { i in
+                let c = packed[i]
+                let scaleFactor = (size.width / 2)
+
+                Circle()
+                    .fill(Color(white: grayValues[i], opacity: 1.0)) // Use gray value
+                    .padding(padding)
+                    .frame(width: c.r * 2 * scaleFactor,
+                           height: c.r * 2 * scaleFactor)
+                    .offset(x: c.x * scaleFactor, y: c.y * scaleFactor)
+            }
+        }
+        .frame(width: size.width, height: size.height)
+        .background(.clear, in: Circle())
+        // .rotationEffect(.degrees(225)) // Moved to parent view
     }
 }
 

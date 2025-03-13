@@ -36,7 +36,7 @@ struct Home: View {
                     bottomSectionHeight: outerBaseHeight
                 )
             }
-            .frame(
+            .frame( 
                 maxWidth: .infinity,
                 maxHeight: .infinity,
                 alignment: .top
@@ -114,30 +114,30 @@ struct InnerContent: View {
         CSVRepresentable(isInner: true, delegate: scrollDelegate) {
             VStack(spacing: 1) {
                 Grid(horizontalSpacing: 1, verticalSpacing: 1) {
-                    ForEach(1...4, id: \.self ) { _ in
+                    ForEach(1...4, id: \.self) { _ in
                         GridRow {
                             ForEach(1...3, id: \.self) { _ in
-                                Color.white.opacity(0.2)
+                                Color(white: 0.5 + Double.random(in: 0.0 ... 0.5), opacity: 1.0)
                             }
                         }
                     }
                 }
                 .aspectRatio(0.75, contentMode: .fit)
                 Grid(horizontalSpacing: 1, verticalSpacing: 1) {
-                    ForEach(1...4, id: \.self ) { _ in
+                    ForEach(1...4, id: \.self) { _ in
                         GridRow {
                             ForEach(1...3, id: \.self) { _ in
-                                Color.white.opacity(0.2)
+                                Color(white: 0.5 + Double.random(in: 0.0 ... 0.5), opacity: 1.0)
                             }
                         }
                     }
                 }
                 .aspectRatio(0.75, contentMode: .fit)
                 Grid(horizontalSpacing: 1, verticalSpacing: 1) {
-                    ForEach(1...4, id: \.self ) { _ in
+                    ForEach(1...4, id: \.self) { _ in
                         GridRow {
                             ForEach(1...3, id: \.self) { _ in
-                                Color.white.opacity(0.2)
+                                Color(white: 0.5 + Double.random(in: 0.0 ... 0.5), opacity: 1.0)
                             }
                         }
                     }
