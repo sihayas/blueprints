@@ -13,7 +13,9 @@ struct blueprintsApp: App {
 
     var body: some Scene {
         WindowGroup {
-            TextTransitionView()
+            HoloPreview()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.white)
                 .ignoresSafeArea()
                 .environmentObject(WindowState.shared)
         }
