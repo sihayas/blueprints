@@ -98,11 +98,9 @@ struct HoloPreview: View {
                     currentRotationX = Float(-value.translation.height / 20)
                 }
                 .onEnded { _ in
-                    withAnimation(.spring()) {
-                        HoloRotationManager.shared.rotationAngleX = 30
-                        HoloRotationManager.shared.rotationAngleY = 0
-                        currentRotationX = 30
-                    }
+                    HoloRotationManager.shared.rotationAngleX = 30
+                    HoloRotationManager.shared.rotationAngleY = 0
+                    currentRotationX = 30
                 }
         )
         .onAppear {

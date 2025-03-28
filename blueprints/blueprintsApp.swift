@@ -10,14 +10,27 @@ import SwiftUI
 @main
 struct blueprintsApp: App {
     let persistenceController = PersistenceController.shared
+    let uiState = UIState.shared
 
     var body: some Scene {
         WindowGroup {
-            HoloPreview()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.white)
-                .ignoresSafeArea()
-                .environmentObject(WindowState.shared)
+            ZStack(alignment: .bottom) {
+                VStack {
+                    Image("ramp")
+                        .resizable()
+                        .scaledToFit()
+                        .clipShape(Capsule())
+                }
+                .frame(maxHeight: 32)
+
+                SymmetryView()
+                    .environmentObject(uiState)
+                    .onAppear {
+                        uiState.enableDarkMode()
+                    }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .environmentObject(WindowState.shared)
         }
     }
 }

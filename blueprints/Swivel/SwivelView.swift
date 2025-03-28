@@ -177,8 +177,6 @@ struct IntroPageView: View {
             .background {
                 RoundedRectangle(cornerRadius: 35)
                     .fill(.background)
-                    .shadow(color: .primary.opacity(0.2), radius: 12, x: 1, y: 1)
-                    .shadow(color: .primary.opacity(0.2), radius: 12, x: -1, y: -1)
                     .padding(-3)
                     .opacity(selectedItem.id == item.id ? 1 : 0)
             }
