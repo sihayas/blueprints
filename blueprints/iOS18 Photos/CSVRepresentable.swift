@@ -4,10 +4,11 @@
 //
 //  Created by decoherence on 1/12/25.
 //
-///  Core idea is a single gesture recognizer controls 2 simultaneous scrollViews to create a uni-scroll effect. Buggy, needs simpler logic.
+///  Core idea is a single gesture recognizer controls 2 simultaneous scrollViews to create a uni-scroll effect. A bit buggy.
 //  TODO: - Still needs extra polish and tweaking.
 //        - Fix the weird rubberbanding on expand.
 //        - Fix the un-collapse drag offset speed.
+
 
 import SwiftUI
 
@@ -279,18 +280,18 @@ class CSV: UIScrollView, UIGestureRecognizerDelegate {
     var initialContentOffset: CGPoint = .zero
     var isInner: Bool = false
 
-    // Add reference to the other scroll view's gesture recognizer
+    /// Add reference to the other scroll view's gesture recognizer
     var otherPanGestureRecognizer: UIPanGestureRecognizer?
 
     override func didMoveToSuperview() {
         super.didMoveToSuperview()
 
-        // Make sure we're the delegate for our own pan gesture recognizer
+        /// Make sure we're the delegate for our own pan gesture recognizer
         panGestureRecognizer.delegate = self
     }
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        // Allow simultaneous recognition with the other scroll view's gesture
+        /// Allow simultaneous recognition with the other scroll view's gesture
         if otherGestureRecognizer == otherPanGestureRecognizer {
             return true
         }
