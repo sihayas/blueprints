@@ -15,19 +15,23 @@ struct blueprintsApp: App {
     var body: some Scene {
         WindowGroup {
             ZStack(alignment: .bottom) {
-                VStack {
-                    Image("ramp")
-                        .resizable()
-                        .scaledToFit()
-                        .clipShape(Capsule())
-                }
-                .frame(maxHeight: 32)
-
-                SymmetryView()
-                    .environmentObject(uiState)
-                    .onAppear {
-                        uiState.enableDarkMode()
-                    }
+                // VStack {
+                //     Image("ramp")
+                //         .resizable()
+                //         .scaledToFit()
+                //         .clipShape(Capsule())
+                // }
+                // .frame(maxHeight: 32)
+               
+                // SymmetryView()
+                //     .environmentObject(uiState)
+                //     .onAppear {
+                //         uiState.enableDarkMode()
+                //     }
+                ViewControllerPreview(
+                    viewController: UINavigationController(rootViewController: CollectionViewController())
+                )
+                .edgesIgnoringSafeArea(.all)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .environmentObject(WindowState.shared)
