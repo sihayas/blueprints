@@ -1,5 +1,14 @@
 # acusia / blueprints
 
+https://vimeo.com/1124109235
+https://vimeo.com/1124109248
+https://vimeo.com/1124109240
+https://vimeo.com/1124109227
+https://vimeo.com/1124109223
+https://vimeo.com/1124109218
+https://vimeo.com/1124109212
+https://vimeo.com/1124109206
+
 This repository is a collection of **SwiftUI and Metal/SceneKit prototypes** exploring 
 motion design, interactive UI concepts, and generative graphics.  
 It isn’t a finished product or app, but a **playground of experiments** that mix 
