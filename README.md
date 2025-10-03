@@ -45,10 +45,3 @@ for future apps.
 
 This repo is meant as a **creative lab** for experimenting with how far 
 you can push SwiftUI when combined with lower-level rendering frameworks.
-
-
-
-https://github.com/user-attachments/assets/974789fe-3560-4923-a4d2-04fc68fa4cf1
-
-
-
