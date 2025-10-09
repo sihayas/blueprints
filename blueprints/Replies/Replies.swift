@@ -1,9 +1,24 @@
-
+//
+//  Replies.swift
+//  blueprints
+//
+//  Created by decoherence on 1/12/25.
+//
+/// A SwiftUI interface for displaying threaded replies in a layered,
+/// vertically stacked sheet style. Each reply can collapse into a
+/// compact layer and push new layers on top, enabling navigation
+/// through conversations without leaving the context of the thread.
+///
 import SwiftUI
 import Transmission
 
 
-
+struct RepliesSheet_Previews: PreviewProvider {
+    static var previews: some View {
+        RepliesSheet(size: UIScreen.main.bounds.size, minHomeHeight: 32)
+            .environmentObject(WindowState.shared)
+    }
+}
 
 class WindowState: ObservableObject {
     static let shared = WindowState()
@@ -17,13 +32,6 @@ class WindowState: ObservableObject {
     @Published var isLayered: Bool = false // Layered replies
 
     private init() {}
-}
-
-struct RepliesSheet_Previews: PreviewProvider {
-    static var previews: some View {
-        RepliesSheet(size: UIScreen.main.bounds.size, minHomeHeight: 32)
-            .environmentObject(WindowState.shared)
-    }
 }
 
 class LayerManager: ObservableObject {

@@ -2,8 +2,11 @@
 //  HoloPreview.swift
 //  acusia
 //
-//  Created by decoherence on 9/9/24.
+/// A SwiftUI view that previews a layered holographic card effect.
+/// Combines Core Motion for tilt-based rotation, drag gestures for
+/// manual control, and shader-driven sticker effect for a 3D hologram feel.
 //
+
 import CoreMotion
 import SwiftUI
 

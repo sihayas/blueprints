@@ -208,7 +208,7 @@ class FlipPushAnimator: NSObject, UIViewControllerAnimatedTransitioning {
         // Animate mask frame and corner radius with UIViewPropertyAnimator
         let maskFinalFrame = toVC.view.bounds
         let animator = UIViewPropertyAnimator(duration: duration, dampingRatio: 0.8) {
-            maskView.frame = maskFinalFrame
+            maskView.frame = maskFinalFrame 
             maskView.layer.cornerRadius = 0
         }
         animator.addCompletion { _ in

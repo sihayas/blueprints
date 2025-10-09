@@ -2,17 +2,10 @@
 //  CustomCardDeckPageView.swift
 //  acusia
 //
-//  Created by decoherence on 8/15/24.
+/// A custom `PageViewStyle` that creates a tilting card deck effect.
+/// Supports swipe gestures, scaling, rotation, 3D tilt, and shadows
+/// to simulate stacked cards with animated transitions.
 //
-/// This is a fork of the CardDeckPageView in the BigUIPaging package.
-/// The original code had a default scaleEffect applied to it. This
-/// remedies that.
-///
-/// Changes:
-/// - Removed the scaleEffect modifier from the CustomCardDeckPageView
-/// - Changed the swingOutMultiplier and subsequent xOffset padding multiplier.
-/// - Changed default corner radius.
-/// - Removed the ".CardStyle" property which added a Mask/RoundedRectangle to each card.
 
 import BigUIPaging
 import SwiftUI

@@ -11,6 +11,7 @@ struct Home: View {
 
     @StateObject private var csvDelegate = CSVDelegate()
     @State var dragOffset: CGFloat = 0
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         let innerBaseHeight: CGFloat = viewSize.height * 0.7
@@ -51,6 +52,14 @@ struct Home: View {
             withAnimation() {
                 dragOffset = offset
             }
+        }
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel", systemImage: "xmark") {
+                    dismiss()
+                }
+            }
+
         }
     }
 }

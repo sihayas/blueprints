@@ -2,8 +2,11 @@
 //  PackedCircle.swift
 //  acusia
 //
-//  Created by decoherence on 1/5/25.
+/// A circle-packing utility with geometry helpers, packing algorithms,
+/// and scaling functions. Includes a SwiftUI demo (`CirclifyDemoView`)
+/// to visualize dynamic circle layouts.
 //
+
 
 import Foundation
 import SwiftUI

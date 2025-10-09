@@ -1,4 +1,13 @@
-/// Note Build Rules to get this working properly.
+//
+//  SoundScreen.swift
+//  blueprints
+//
+/// A SwiftUI + SceneKit view that renders an iridescent 3D disc using
+/// custom Metal shaders and a Core Image–generated normal map.
+/// Includes interactive sliders for shader parameters, a text editor
+/// for live updates, and easing-based animations for playful motion.
+//
+
 
 import SwiftUI
 import MetalKit

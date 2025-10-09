@@ -1,3 +1,23 @@
+//
+//  ImprintPreview.swift
+//  blueprints
+//
+//  Created by decoherence on 1/12/25.
+//
+/// A SwiftUI prototype for experimenting with interactive card decks,
+/// morphing vector shapes, and animated gestures.
+///
+/// - Uses `BigUIPaging` for card deck pagination with custom shadowing.
+/// - Integrates `Wave`’s spring animator for drag-based throw physics.
+/// - Demonstrates morphing between circle and heart paths using
+///   `AnimatableVector` and custom shape interpolation.
+/// - Adds ripple, heartbeat, and heartbreak keyframe effects to highlight
+///   transitions triggered by swipe gestures.
+///
+/// The intention is to explore fluid, playful motion design
+/// for previews and micro-interactions.
+//
+
 import BigUIPaging
 import SwiftUI
 import Wave
@@ -186,7 +206,7 @@ struct ImprintPreview: View {
                         }
                     }
                 }
-                .frame(width: 80, height: 80)
+                .frame(width: 80, height: 80) 
             }
             .offset(x: shapeOffset.x, y: shapeOffset.y)
             .onAppear {

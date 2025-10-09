@@ -65,6 +65,26 @@
 		CD8DE5D52D49A2B6009CEDAB /* blueprintsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = blueprintsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		F6FE2FD52E810C3A0020EFD6 /* Exceptions for "ci_scripts" folder in "blueprints" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ci_pre_xcodebuild.sh,
+			);
+			target = CD8DE5B52D49A2B4009CEDAB /* blueprints */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		F6FE2FD62E810C3A0020EFD6 /* Exceptions for "ci_scripts" folder in "Compile Sources" phase from "blueprints" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = CD8DE5B22D49A2B4009CEDAB /* Sources */;
+			membershipExceptions = (
+				ci_pre_xcodebuild.sh,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		CD8DE5B82D49A2B4009CEDAB /* blueprints */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
@@ -79,6 +99,15 @@
 		CD8DE5D82D49A2B6009CEDAB /* blueprintsUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = blueprintsUITests;
+			sourceTree = "<group>";
+		};
+		F6FE2FD12E810C190020EFD6 /* ci_scripts */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				F6FE2FD52E810C3A0020EFD6 /* Exceptions for "ci_scripts" folder in "blueprints" target */,
+				F6FE2FD62E810C3A0020EFD6 /* Exceptions for "ci_scripts" folder in "Compile Sources" phase from "blueprints" target */,
+			);
+			path = ci_scripts;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -115,6 +144,7 @@
 		CD8DE5AD2D49A2B4009CEDAB = {
 			isa = PBXGroup;
 			children = (
+				F6FE2FD12E810C190020EFD6 /* ci_scripts */,
 				CD8DE5B82D49A2B4009CEDAB /* blueprints */,
 				CD8DE5CE2D49A2B6009CEDAB /* blueprintsTests */,
 				CD8DE5D82D49A2B6009CEDAB /* blueprintsUITests */,
@@ -151,6 +181,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				CD8DE5B82D49A2B4009CEDAB /* blueprints */,
+				F6FE2FD12E810C190020EFD6 /* ci_scripts */,
 			);
 			name = blueprints;
 			packageProductDependencies = (
@@ -456,6 +487,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -485,6 +517,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

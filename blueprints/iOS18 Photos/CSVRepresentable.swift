@@ -4,7 +4,10 @@
 //
 //  Created by decoherence on 1/12/25.
 //
-///  Core idea is a single gesture recognizer controls 2 simultaneous scrollViews to create a uni-scroll effect. A bit buggy.
+/// Reverse engineering the iOS 18 Photos interface to understand
+/// how Apple engineers approached removing tab bar based navigation.
+/// Core idea is a single gesture recognizer controls 2 simultaneous scrollViews to create a uni-scroll effect. A bit buggy.
+///
 //  TODO: - Still needs extra polish and tweaking.
 //        - Fix the weird rubberbanding on expand.
 //        - Fix the un-collapse drag offset speed.

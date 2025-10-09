@@ -4,6 +4,9 @@
 //
 //  Created by decoherence on 3/28/25.
 //
+//  Symmetry-based Dynamic Island experiment with
+//  animated capsules for collapsed, feed, and reply states.
+//
 import SwiftUI
 
 enum Field: Hashable {
@@ -310,8 +313,8 @@ extension SymmetryView {
                     .font(.system(size: 17))
                     .foregroundColor(.white)
                     .padding([.top, .horizontal], 8)
-                    .focused($focusedField, equals: .reply)
-                    .focused($focusedField, equals: .search)
+//                    .focused($focusedField, equals: .reply)
+//                    .focused($focusedField, equals: .search)
                     .textEditorBackground(.clear)
                  
                 // if uiState.symmetryState == .reply {
