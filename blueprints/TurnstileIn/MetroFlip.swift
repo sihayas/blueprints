@@ -12,8 +12,6 @@ import UIKit
 
 class FlipGridViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UINavigationControllerDelegate {
     var collectionView: UICollectionView!
-    var selectedItem: Int?
-    var cellColor: UIColor?
     let items = Array(1 ... 20)
     
     // Record which cell was tapped.
@@ -48,17 +46,12 @@ class FlipGridViewController: UIViewController, UICollectionViewDataSource, UICo
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath)
-        
-        // Generate a random gray shade starting from 0.5 baseline
-        let baseline: CGFloat = 0.5 // Minimum gray value (medium gray)
-        let grayValue = baseline + CGFloat.random(in: 0.0 ... 0.5) // Random from 0.5 to 1.0
-        cell.backgroundColor = UIColor(white: grayValue, alpha: 1.0)
-        
+        cell.backgroundColor = .systemBlue
         cell.contentView.subviews.forEach { $0.removeFromSuperview() }
             
         let label = UILabel(frame: cell.bounds)
         label.text = "\(items[indexPath.item])"
-        label.textColor = grayValue > 0.75 ? .black : .white // Adjust text color for readability
+        label.textColor = .white
         label.textAlignment = .center
         cell.contentView.addSubview(label)
             
@@ -88,9 +81,8 @@ class FlipGridViewController: UIViewController, UICollectionViewDataSource, UICo
     /// Record tapped cell and push detail.
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         selectedIndexPath = indexPath
-        let detailVC = FlipGridViewController()
+        let detailVC = DetailViewController()
         detailVC.selectedItem = items[indexPath.item]
-        detailVC.cellColor = .systemRed
         navigationController?.pushViewController(detailVC, animated: true)
     }
     
@@ -118,6 +110,33 @@ class FlipGridViewController: UIViewController, UICollectionViewDataSource, UICo
     }
 }
 
+// MARK: - DetailViewController
+
+class FlipDetailViewController: UIViewController {
+    var selectedItem: Int?
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .systemRed
+        title = "Detail"
+        
+        let label = UILabel(frame: view.bounds)
+        label.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: 32, weight: .bold)
+        label.textColor = .white
+        label.text = "Item \(selectedItem ?? 0)"
+        view.addSubview(label)
+         
+        let image = UIImage(systemName: "person.crop.circle.fill")
+        let imageView = UIImageView(image: image)
+        imageView.tintColor = .white
+        imageView.contentMode = .scaleAspectFit
+        imageView.frame = view.bounds.insetBy(dx: 20, dy: 20)
+        view.addSubview(imageView)
+    }
+}
+
 // MARK: - ZoomPushAnimator
 
 /// The tapped cell's frame is used as the starting frame for the detail view.
@@ -127,22 +146,19 @@ class FlipPushAnimator: NSObject, UIViewControllerAnimatedTransitioning {
     let gridVC: FlipGridViewController
 
     private enum Config {
-        static let animationDuration: TimeInterval = 0.4
-        static let cellFlipOutDuration: TimeInterval = 0.25
-        static let cellFlipInDuration: TimeInterval = 0.35
-        static let opacityDelay: TimeInterval = 0.05
+        static let animationDuration: TimeInterval = 0.25
     }
      
     private let perspectiveDistance: CGFloat = 2000.0
-    private let rotationAngle: CGFloat = -50 * .pi / 180
-     
+    private let rotationAngle: CGFloat = -.pi / 2
+    
     init(gridVC: FlipGridViewController) {
         self.gridVC = gridVC
         super.init()
     }
      
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-        Config.animationDuration
+        return Config.animationDuration
     }
      
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
@@ -150,8 +166,9 @@ class FlipPushAnimator: NSObject, UIViewControllerAnimatedTransitioning {
     }
     
     private func setup(with context: UIViewControllerContextTransitioning)
-        -> (tappedCell: UICollectionViewCell, toVC: FlipGridViewController, toFrame: CGRect)? {
-        guard let toVC = context.viewController(forKey: .to) as? FlipGridViewController,
+        -> (tappedCell: UICollectionViewCell, toView: UIView, toFrame: CGRect)?
+    {
+        guard let toVC = context.viewController(forKey: .to),
               let selectedIndexPath = gridVC.selectedIndexPath,
               let tappedCell = gridVC.collectionView.cellForItem(at: selectedIndexPath)
         else { return nil }
@@ -161,187 +178,134 @@ class FlipPushAnimator: NSObject, UIViewControllerAnimatedTransitioning {
         toVC.view.frame = toFrame
         container.insertSubview(toVC.view, belowSubview: gridVC.view)
         
-        toVC.view.layoutIfNeeded()
-        if let toCollectionView = toVC.collectionView {
-            for cell in toCollectionView.visibleCells {
-                cell.layer.opacity = 0.0
-            }
-        }
+        // Set up toView’s initial transform
+        toVC.view.layer.anchorPoint = CGPoint(x: 0, y: 0.5) // Pivot at container’s left edge
+        toVC.view.layer.position.x = container.bounds.minX // Align with left edge
+        var initialTransform = CATransform3DIdentity
+        initialTransform.m34 = -1.0 / perspectiveDistance
+        initialTransform = CATransform3DRotate(initialTransform, .pi / 2, 0, 1, 0)
+        toVC.view.layer.transform = initialTransform
         
-        return (tappedCell, toVC, toFrame)
+        return (tappedCell, toVC.view, toFrame)
     }
     
     private func pushAnimation(with context: UIViewControllerContextTransitioning) {
-        guard let (tappedCell, toVC, _) = setup(with: context) else {
+        guard let (tappedCell, toView, toFrame) = setup(with: context) else {
             context.completeTransition(false)
             return
         }
-
+        
         let container = context.containerView
         gridVC.collectionView.backgroundColor = .clear
-
-        // Apply perspective to both collection views
-        var containerTransform = CATransform3DIdentity
-        containerTransform.m34 = -1.0 / perspectiveDistance
-        gridVC.collectionView.layer.sublayerTransform = containerTransform
-        toVC.collectionView?.layer.sublayerTransform = containerTransform
-
-        // Set the anchor point to the vertical center
-        let oldBounds = gridVC.collectionView.layer.bounds
-        let oldPosition = gridVC.collectionView.layer.position
-        gridVC.collectionView.layer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
-        gridVC.collectionView.layer.position = CGPoint(x: oldPosition.x, y: container.bounds.height / 2)
-
-        // Prepare for mask animation (remove old CALayer mask animation and replace with UIView mask)
-        container.addSubview(toVC.view)
-        toVC.view.alpha = 1
-        // Use UIView mask for push, matching pop animator implementation
-        // Compute selected cell's initial frame in container coordinates
-        let selectedCellInitialFrame = tappedCell.convert(tappedCell.bounds, to: container)
-        let duration = transitionDuration(using: context)
-        let maskView = UIView(frame: selectedCellInitialFrame)
-        maskView.backgroundColor = .black
-        maskView.layer.cornerCurve = .continuous
-        maskView.layer.cornerRadius = 32
-        toVC.view.mask = maskView
-
-        // Animate mask frame and corner radius with UIViewPropertyAnimator
-        let maskFinalFrame = toVC.view.bounds
-        let animator = UIViewPropertyAnimator(duration: duration, dampingRatio: 0.8) {
-            maskView.frame = maskFinalFrame 
-            maskView.layer.cornerRadius = 0
-        }
-        animator.addCompletion { _ in
-            toVC.view.mask = nil
-        }
-        animator.startAnimation()
-
+        
+        // Get all visible cells except the tapped one
         let nonTappedCells = gridVC.collectionView.visibleCells.filter { $0 != tappedCell }
-        let xFactorOut: CGFloat = -0.00047143
-        let yFactorOut: CGFloat = 0.001714
-        let randomFactor: CGFloat = 0.0714
-        let random = Random()
-
+        
+        // Animation duration
+        let duration = transitionDuration(using: context) // 0.25 seconds
+        
+        // Constants for delay factors (tweak these as needed)
+        let xFactor: CGFloat = -0.00047143 // Small influence from X (right-to-left)
+        let yFactor: CGFloat = 0.001714 // Larger influence from Y (bottom-to-top)
+        let randomFactor: CGFloat = 0.0714 // Randomness scale
+        
+        // Animate non-tapped cells
+        let random = Random() // Use a seeded random generator if you want consistency
         for cell in nonTappedCells {
+            // Get the cell’s position relative to the container
             let positionInContainer = cell.convert(CGPoint.zero, to: container)
             let x = positionInContainer.x
-            let y = container.bounds.height - positionInContainer.y
-            let delayFactor = y * yFactorOut + x * xFactorOut + CGFloat(random.nextInt(in: -1 ... 1)) * randomFactor
-            let delay = Config.cellFlipOutDuration * Double(delayFactor)
+            let y = container.bounds.height - positionInContainer.y // Y from bottom
+            
+            // Calculate delay factor based on position and randomness
+            let delayFactor = y * yFactor + x * xFactor + CGFloat(random.nextInt(in: -1 ... 1)) * randomFactor
+            let delay = duration * Double(delayFactor) // Scale with total duration
+            
+            // Ensure delay is non-negative
             let finalDelay = max(0, delay)
-
-            animateDoorCellOut(cell, delay: finalDelay, container: container)
+            
+            animateDoorCell(cell, delay: finalDelay, container: container)
         }
-
-        let maxNonTappedDelay = Config.cellFlipOutDuration * Double(container.bounds.height * yFactorOut + randomFactor)
-
+        
+        // Calculate max delay for non-tapped cells to sequence tapped cell animation
+        let maxNonTappedDelay = duration * Double(container.bounds.height * yFactor + randomFactor)
+        
+        // Animate tapped cell and toView together
         DispatchQueue.main.asyncAfter(deadline: .now() + maxNonTappedDelay) {
-            self.animateDoorCellOut(tappedCell, delay: 0, container: container)
-
-            guard let toCollectionView = toVC.collectionView else {
-                context.completeTransition(!context.transitionWasCancelled)
-                return
-            }
-            let allToCells = toCollectionView.visibleCells
-            let xFactorIn: CGFloat = 0.00047143
-            let yFactorIn: CGFloat = 0.001714
-
-            for cell in allToCells {
-                let positionInContainer = cell.convert(CGPoint.zero, to: container)
-                let x = positionInContainer.x
-                let y = positionInContainer.y
-                let delayFactor = y * yFactorIn + x * xFactorIn + CGFloat(random.nextInt(in: -1 ... 1)) * randomFactor
-                let delay = Config.cellFlipInDuration * Double(delayFactor)
-                let finalDelay = max(0, delay)
-
-                self.animateDoorCellIn(cell, delay: finalDelay, container: container)
-            }
-
-            let maxToCellDelay = Config.cellFlipInDuration * Double(container.bounds.height * yFactorIn + randomFactor)
-            DispatchQueue.main.asyncAfter(deadline: .now() + maxToCellDelay) {
-                self.gridVC.view.removeFromSuperview()
-                context.completeTransition(!context.transitionWasCancelled)
-            }
+            self.animateDoorCell(tappedCell, delay: 0, container: container)
+            
+            UIView.animate(withDuration: duration,
+                           delay: 0,
+                           options: [.curveEaseInOut],
+                           animations: {
+                               toView.layer.transform = CATransform3DIdentity
+                           },
+                           completion: { _ in
+                               self.gridVC.view.removeFromSuperview()
+                               context.completeTransition(!context.transitionWasCancelled)
+                           })
         }
     }
     
-    private func animateDoorCellOut(_ cell: UIView, delay: TimeInterval, container: UIView) {
+    private func animateDoorCell(_ cell: UIView, delay: TimeInterval, container: UIView) {
         let cellLayer = cell.layer
-         
-        // Calculate anchor point based on container's left edge
+        
+        // Get container’s midpoint
+        let containerMidY = container.bounds.height / 2 // Or contentSize.height / 2 - contentOffset.y for full content
+        
+        // Cell’s original position in container coordinates
+        let positionInContainer = cell.convert(CGPoint.zero, to: container)
+        let cellTopInContainer = positionInContainer.y
+        
+        // LocalOffsetY: distance from cell’s top to container midpoint
+        let localOffsetY = cellTopInContainer - containerMidY
+        
+        print("Cell at \(cell.frame.origin), containerMidY: \(containerMidY), localOffsetY: \(localOffsetY)")
+        
+        // Pivot at container’s left edge
         let containerLeftEdgeInCell = cell.convert(CGPoint.zero, from: container)
         let anchorX = containerLeftEdgeInCell.x / cell.bounds.width
         let oldAnchorPoint = cellLayer.anchorPoint
         let oldPosition = cellLayer.position
          
-        // Set anchor point for rotation
+        // Store original frame for reference
+        let originalFrame = cell.frame
+         
+        // Set new anchor point
         cellLayer.anchorPoint = CGPoint(x: anchorX, y: 0.5)
-        let positionShiftX = (anchorX - oldAnchorPoint.x) *  cell.bounds.width
-        cellLayer.position = CGPoint(x: oldPosition.x + positionShiftX, y: oldPosition.y)
         
-        let rotationStart = CACurrentMediaTime() + delay
-        let rotationAnim = CABasicAnimation(keyPath: "transform")
-        rotationAnim.fromValue = CATransform3DIdentity
-        rotationAnim.toValue = CATransform3DRotate(CATransform3DIdentity, rotationAngle, 0, 1, 0)
-        rotationAnim.duration = Config.cellFlipOutDuration
-        rotationAnim.timingFunction = CAMediaTimingFunction(controlPoints: 0.95, 0.0, 1.0, 1.0)
-        rotationAnim.beginTime = rotationStart
-        rotationAnim.fillMode = .forwards
-        rotationAnim.isRemovedOnCompletion = false
-        
-        let opacityAnim = CABasicAnimation(keyPath: "opacity")
-        opacityAnim.fromValue = 1.0
-        opacityAnim.toValue = 0.0
-        opacityAnim.duration = 0.01
-        opacityAnim.beginTime = rotationStart + Config.cellFlipOutDuration
-        opacityAnim.fillMode = .forwards
-        opacityAnim.isRemovedOnCompletion = false
-        
-        cellLayer.add(rotationAnim, forKey: "transformAnimation")
-        cellLayer.add(opacityAnim, forKey: "opacityAnimation")
-    }
-    
-    private func animateDoorCellIn(_ cell: UIView, delay: TimeInterval, container: UIView) {
-        let cellLayer = cell.layer
-        
-        // Calculate anchor point based on container's left edge
-        let containerLeftEdgeInCell = cell.convert(CGPoint.zero, from: container)
-        let anchorX = containerLeftEdgeInCell.x / cell.bounds.width
-        let oldAnchorPoint = cellLayer.anchorPoint
-        let oldPosition = cellLayer.position
-        
-        // Set anchor point for rotation
-        cellLayer.anchorPoint = CGPoint(x: anchorX, y: 0.5)
+        // Adjust position for anchor shift (X only for now)
         let positionShiftX = (anchorX - oldAnchorPoint.x) * cell.bounds.width
         cellLayer.position = CGPoint(x: oldPosition.x + positionShiftX, y: oldPosition.y)
         
-        // Create simplified transforms without individual perspective
-        let initialTransform = CATransform3DRotate(CATransform3DIdentity, 80 * .pi / 180, 0, 1, 0) // Start at 80º
-        let finalTransform = CATransform3DIdentity // End at 0º
+        // Initial transform with perspective
+        var initialTransform = CATransform3DIdentity
+        initialTransform.m34 = -1.0 / perspectiveDistance
+        initialTransform = CATransform3DTranslate(initialTransform, 0, localOffsetY, 0)
         
+        // Final transform with rotation
+        var finalTransform = initialTransform
+        finalTransform = CATransform3DRotate(finalTransform, rotationAngle, 0, 1, 0)
+         
+        // Apply initial transform
         cellLayer.transform = initialTransform
         
-        let rotationStart = CACurrentMediaTime() + delay
+        // Correct position post-transform to match original frame
+        let newPositionInContainer = cell.convert(CGPoint.zero, to: container)
+        let yOffsetAfterTransform = positionInContainer.y - newPositionInContainer.y
+        cellLayer.position.y = oldPosition.y + yOffsetAfterTransform
+        
+        // Animate full transform
         let rotationAnim = CABasicAnimation(keyPath: "transform")
         rotationAnim.fromValue = initialTransform
         rotationAnim.toValue = finalTransform
-        rotationAnim.duration = Config.cellFlipInDuration
-        rotationAnim.timingFunction = CAMediaTimingFunction(controlPoints: 0.5, 0.0, 0.1, 1.0)
-        rotationAnim.beginTime = rotationStart
+        rotationAnim.duration = 0.25
+        rotationAnim.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        rotationAnim.beginTime = CACurrentMediaTime() + delay
         rotationAnim.fillMode = .forwards
         rotationAnim.isRemovedOnCompletion = false
-         
-        let opacityAnim = CABasicAnimation(keyPath: "opacity")
-        opacityAnim.fromValue = 0.0
-        opacityAnim.toValue = 1.0
-        opacityAnim.duration = 0.01
-        opacityAnim.timingFunction = CAMediaTimingFunction(controlPoints: 0.5, 0.0, 0.1, 1.0)
-        opacityAnim.beginTime = rotationStart + Config.opacityDelay
-        opacityAnim.fillMode = .forwards
-        opacityAnim.isRemovedOnCompletion = false
         
         cellLayer.add(rotationAnim, forKey: "transformAnimation")
-        cellLayer.add(opacityAnim, forKey: "opacityAnimation")
     }
 }
 
@@ -361,7 +325,7 @@ class Random {
 
 // MARK: - ReverseZoomPopAnimator
 
-/// The detail view zooms back into the tapped cell while the other cells animate back in by reversing the door-swing effect in descending order. Still needs work!!!!
+/// The detail view zooms back into the tapped cell while the other cells animate back in by reversing the door-swing effect in descending order.
 
 class ReverseFlipPopAnimator: NSObject, UIViewControllerAnimatedTransitioning {
     let gridVC: FlipGridViewController
@@ -447,33 +411,10 @@ class ReverseFlipPopAnimator: NSObject, UIViewControllerAnimatedTransitioning {
             cell.layer.transform = openTransform
         }
         
-        // Animate untapped cells with FlipPushAnimator-style delays and timing
-        let xFactorOut: CGFloat = -0.00047143
-        let yFactorOut: CGFloat = 0.001714
-        let randomFactor: CGFloat = 0.0714
-
-        for snap in sortedCells {
-            // Calculate original cell position in container
-            let x = snap.frame.origin.x
-            let y = container.bounds.height - snap.frame.origin.y
-            let delayFactor = y * yFactorOut + x * xFactorOut + CGFloat(Int.random(in: -1...1)) * randomFactor
-            let delay = max(0, TimeInterval(0.25 * Double(delayFactor)))
-
-            UIView.animate(
-                withDuration: 0.25,
-                delay: delay,
-                options: .curveEaseOut,
-                animations: {
-                    // Calculate vertical offset: top cells go up, bottom go down
-                    let midY = container.bounds.midY
-                    let normalized = (snap.frame.midY - midY) / (container.bounds.height / 2)
-                    let yOffset = normalized * container.bounds.height
-                    var t = CATransform3DIdentity
-                    t = CATransform3DTranslate(t, 0, yOffset, 200)
-                    snap.layer.transform = t
-                },
-                completion: nil
-            )
+        // Animate cells back to flat
+        for (i, cell) in sortedCells.enumerated() {
+            let delay = 0.06 * Double(i)
+            animateDoorCell(cell, delay: delay, container: container)
         }
         
         let totalDelay = 0.06 * Double(sortedCells.count)

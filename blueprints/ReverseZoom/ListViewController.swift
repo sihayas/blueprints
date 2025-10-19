@@ -30,7 +30,7 @@ class RoundedCell: UICollectionViewCell {
 
 // MARK: - Detail View Controller
 
-class DetailViewController: UIViewController {
+class ZoomDetailViewController: UIViewController {
     let cellColor: UIColor
 
     init(cellColor: UIColor) {
@@ -218,7 +218,7 @@ extension CollectionViewController: UICollectionViewDelegate {
         let frame = view.convert(cell.frame, from: cv)
         pushAnimator.selectedCellInitialFrame = frame
         selectedIndexPath = indexPath
-        let detailVC = DetailViewController(cellColor: color)
+        let detailVC = ZoomDetailViewController(cellColor: color)
         navigationController?.pushViewController(detailVC, animated: true)
     }
 }
@@ -240,7 +240,7 @@ extension CollectionViewController: UINavigationControllerDelegate {
 // MARK: - SwiftUI Preview
 
 /// A helper to preview UIKit view controllers in SwiftUI canvas.
-struct ViewControllerPreview: UIViewControllerRepresentable {
+struct ZoomViewControllerPreview: UIViewControllerRepresentable {
     let viewController: UIViewController
     func makeUIViewController(context: Context) -> UIViewController { viewController }
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
@@ -248,7 +248,7 @@ struct ViewControllerPreview: UIViewControllerRepresentable {
 
 struct CustomCollectionTransition_Previews: PreviewProvider {
     static var previews: some View {
-        ViewControllerPreview(
+        ZoomViewControllerPreview(
             viewController: UINavigationController(rootViewController: CollectionViewController())
         )
         .edgesIgnoringSafeArea(.all)

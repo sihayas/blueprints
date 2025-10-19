@@ -196,7 +196,7 @@ enum PreviewType: String, CaseIterable, Identifiable {
             RepliesSheet(size: UIScreen.main.bounds.size, minHomeHeight: 32)
                 .environmentObject(WindowState.shared)
         case .vc:
-            ViewControllerPreview(
+            ZoomViewControllerPreview(
                 viewController: UINavigationController(rootViewController: CollectionViewController())
             )
             .edgesIgnoringSafeArea(.all)
