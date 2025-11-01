@@ -4,6 +4,15 @@
 
 ---
 
+## Native Auxiliary
+
+![original_d5e79c79659cefdf73cb49261a367681](https://github.com/user-attachments/assets/689e82a2-0430-4902-b2b1-d179eda287cf)
+
+attaches an AuxiliaryView to a UIContextMenu, the main code responsible for attaching the view is thanks to DominicGo - surprisingly it doesn't use any private api's
+the slightly annoying part was hooking into the native context menu gesture to allow a user to be able to simply hold and drag without lifting a finger to select something. keeps the natural friction spring physics intact without needing to manually add another gesture on top
+
+---
+
 ## iOS 18 Photos View (LemonadeView)
 [Watch demo](https://vimeo.com/1124109248)
 
