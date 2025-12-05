@@ -14,7 +14,6 @@ the slightly annoying part was hooking into the native context menu gesture to a
 ---
 
 ## iOS 18 Photos View (LemonadeView)
-[Watch demo](https://vimeo.com/1124109248)
 ![original](https://github.com/user-attachments/assets/f53e7b3f-450f-4742-a950-6734b23ea654)
 
 
@@ -30,7 +29,8 @@ Achieved using custom scroll logic instead of reverse-engineering Apple’s full
 ---
 
 ## Vertical Threads
-[Watch demo](https://vimeo.com/1124109240)
+[Watch demo](https://github.com/user-attachments/assets/55fd1e53-b775-4b32-9378-d0432762735d)
+
 
 Rethinks the side-to-side navigation of apps like Twitter or Threads.  
 Tapping a thread animates it vertically into view, sliding up or down like a drawer, and threads can be stacked and restored interactively.
