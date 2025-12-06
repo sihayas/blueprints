@@ -76,8 +76,8 @@ Explores how Metal shaders can drive realistic, depth-rich animations instead of
 ---
 
 ## Circlify
-![original](https://github.com/user-attachments/assets/1ab121db-911c-4034-88e8-217b3ec94db8)
-
+![original]()
+<video src='https://github.com/user-attachments/assets/1ab121db-911c-4034-88e8-217b3ec94db8'/>
 Swift port of the Python circlify library.  
 Generates Apollonian circle packings algorithmically for layout or data visualization.
 
