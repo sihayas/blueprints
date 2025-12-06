@@ -14,7 +14,7 @@ the slightly annoying part was hooking into the native context menu gesture to a
 ---
 
 ## iOS 18 Photos View (LemonadeView)
-![original](https://github.com/user-attachments/assets/f53e7b3f-450f-4742-a950-6734b23ea654)
+![original_f53e7b3f-450f-4742-a950-6734b23ea654](https://github.com/user-attachments/assets/f53e7b3f-450f-4742-a950-6734b23ea654)
 
 Internally known as "LemonadeView", this was Apple’s first Photos interface without traditional tabs.  
 Built using UIKit and SwiftUI, it relies on nested ScrollViews, something Apple’s HIG usually discourages.
