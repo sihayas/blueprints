@@ -93,7 +93,24 @@ Designed to fix clipping artifacts common in stacked card interfaces.  
 Smooth transitions and dynamic depth achieved through custom geometry and animation timing.
 
 ---
+## Native Auxiliary
+<video src="https://github.com/user-attachments/assets/46b641c1-ff7f-4d5b-b50e-1e1fb829a2a1" controls="controls"></video>
 
+attaches an AuxiliaryView to a UIContextMenu, the main code responsible for attaching the view is thanks to DominicGo - surprisingly it doesn't use any private api's
+the slightly annoying part was hooking into the native context menu gesture to allow a user to be able to simply hold and drag without lifting a finger to select something. keeps the natural friction spring physics intact without needing to manually add another gesture on top
+
+---
 ## ARCHIVE
 
-Random sketches that never saw the light of day...
+Random sketches...
+
+
+<video src="https://github.com/user-attachments/assets/453afe81-e36e-4a26-96c3-dd397cff7ef1" controls="controls"></video>
+
+<video src="https://github.com/user-attachments/assets/c75eef8c-fa09-41bb-baf4-f15f1b10eb89" controls="controls"></video>
+
+<video src="https://github.com/user-attachments/assets/06a2021b-b996-4479-ae3f-9a188ea63cba" controls="controls"></video>
+
+
+
+
