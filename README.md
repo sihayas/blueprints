@@ -1,6 +1,7 @@
 > Design is not just what it looks like and feels like. Design is how it **works**.   
 
 ---
+Note, for views involving SwiftUI gestures, it's better to opt for UIKit gestures in most cases as you get more fine grained and responsive control, you can use UIGestureRecognizerRepresentable to bridge the gap to utilize UIKit gestures in SwiftUI. See this for example https://gist.github.com/sihayas/0fb2536efd3f731230d68c8d767d656f
 
 ## iOS 18 Photos View (LemonadeView)
 <video src="https://github.com/user-attachments/assets/f53e7b3f-450f-4742-a950-6734b23ea654" controls="controls"></video>
