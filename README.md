@@ -1,7 +1,9 @@
 > Design is not just what it looks like and feels like. Design is how it **works**.   
 
 ---
-Note, for views involving SwiftUI gestures, it's better to opt for UIKit gestures in most cases as you get more fine grained and responsive control, you can use UIGestureRecognizerRepresentable to bridge the gap to utilize UIKit gestures in SwiftUI. See this for example https://gist.github.com/sihayas/0fb2536efd3f731230d68c8d767d656f
+I think it may be wiser for iOS engineers to focus more on the "flow" of how you use an app, rather than simpler things like typography and layout. Many of these prototypes explore what I personally consider to be design engineering, which is less about how things "look", and more about how they function. As general guidelines, slide transitions should not exist as screens are too wide now. Animations and screen space transitions should only occur along the Y or Z-axes. Text should be big and bold. Titlebar's and footers should not exist, as clipping content so abruptly feels distasteful to the rounded edges of the screen.
+
+Visual abstraction, in the form of navigation hierarchy for example, introduces complexity not only for the user but for us as well. Ever written a navigation router? As a designer/engineer, ask yourself why do you need to push the user into an entirely new screen state to simply express a few words, or showcase a new view or piece of content. Why do you think it justifiable then, to write the code and subsequent viewmodel's to maintain that screen state and wire it into the flow across your application. It's not that I believe navigation should disappear entirely, but that navigation as is, is excessive, and the less of it there is, the better both for the user and developer.
 
 ## iOS 18 Photos View (LemonadeView)
 <video src="https://github.com/user-attachments/assets/f53e7b3f-450f-4742-a950-6734b23ea654" controls="controls"></video>
