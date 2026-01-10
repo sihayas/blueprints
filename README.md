@@ -1,6 +1,4 @@
-Design is not just what it looks like and feels like. Design is how it **works**.  
-
----
+> Design is not just what it looks like and feels like. Design is how it **works**.  
 
 I think it may be wiser for iOS engineers to focus more on the "flow" of how you use  
 an app, rather than simpler things like typography and layout. Many of these  
