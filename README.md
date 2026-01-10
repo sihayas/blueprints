@@ -90,17 +90,6 @@ Metal Shader demo.
 
 ---
 
-## Iridescence
-<video src="https://github.com/user-attachments/assets/36ffb127-d5f9-40e6-8987-232eb241165d" controls="controls"></video>
-
-Recreates the iridescent shimmer seen in bird feathers, a port of KhronosGroup’s  
-physical model. Implemented in Metal and rendered with SceneKit on a 3D ellipsoid.
-
-Originally designed as a profile card (inspired by Artifact’s medallion UI).  
-Supports engraving of text or shapes via CoreImage filters and Objective-C headers.
-
----
-
 ## Holographic Sticker
 <video src="https://github.com/user-attachments/assets/81218c28-edca-458b-925f-16868139aa3b" controls="controls"></video>
 
@@ -111,14 +100,6 @@ A Metal-driven holographic sticker effect. Uses the Vision API to:
 
 Explores how Metal shaders can drive realistic, depth-rich animations instead of  
 simple gradient tricks.
-
----
-
-## Circlify
-<video src="https://github.com/user-attachments/assets/1ab121db-911c-4034-88e8-217b3ec94db8" controls="controls"></video>
-
-Swift port of the Python circlify library. Generates Apollonian circle packings  
-algorithmically for layout or data visualization.
 
 ---
 
@@ -144,6 +125,30 @@ animation timing.
 
 ---
 
+## Metro Flip
+<video src="https://github.com/user-attachments/assets/9b1da07a-4770-4cc2-8de7-0707618d7049" controls="controls"></video>
+
+Attempt at recreating MetroUI's beautiful Turnstile animation/transition in 
+SwiftUI/UIKit.
+
+The key trick to the effect is how Microsoft designers approached making the
+cells appear as if they were flipping inside singular 3D space, without actually
+needing to render a 3D view. Each cell's leading-center edge is anchored to the 
+leading edge of the container screen, not anchored to itself. Without this, you
+get an effect where the cells appear to flip out towards the screen in a very
+jarring POV perspective, rather than appearing as if they are flipping within 
+a singular space.
+
+There is also a variability to the stagger as each cell flips out of view one by
+one, to give some naturalism to the effect. I tried my best to get it to feel
+as 1:1 as possible but I am still mising finer grained values. I do believe this
+interface was far ahead of it's time, especially in terms of simplicity.
+
+Ref:
+https://matthiasshapiro.com/basic-windows-phone-7-motion-design/
+
+---
+
 ## Native Auxiliary
 <video src="https://github.com/user-attachments/assets/46b641c1-ff7f-4d5b-b50e-1e1fb829a2a1" controls="controls"></video>
 
@@ -155,6 +160,25 @@ the slightly annoying part was hooking into the native context menu gesture to
 allow a user to be able to simply hold and drag without lifting a finger to select  
 something. keeps the natural friction spring physics intact without needing to  
 manually add another gesture on top
+
+---
+
+## Iridescence
+<video src="https://github.com/user-attachments/assets/36ffb127-d5f9-40e6-8987-232eb241165d" controls="controls"></video>
+
+Recreates the iridescent shimmer seen in bird feathers, a port of KhronosGroup’s  
+physical model. Implemented in Metal and rendered with SceneKit on a 3D ellipsoid.
+
+Originally designed as a profile card (inspired by Artifact’s medallion UI).  
+Supports engraving of text or shapes via CoreImage filters and Objective-C headers.
+
+---
+
+## Circlify
+<video src="https://github.com/user-attachments/assets/1ab121db-911c-4034-88e8-217b3ec94db8" controls="controls"></video>
+
+Swift port of the Python circlify library. Generates Apollonian circle packings  
+algorithmically for layout or data visualization.
 
 ---
 
