@@ -1,27 +1,12 @@
 > Design is not just what it looks like and feels like. Design is how it **works**.  
 
-I think it may be wiser for iOS engineers to focus more on the "flow" of how you use  
-an app, rather than simpler things like typography and layout. Many of these  
-prototypes explore what I personally consider to be design engineering, which is  
-less about how things "look", and more about how they function.  
+I am less interested in the various ways you can orient typography & layout, and more interested in navigation hierarchies (or lack thereof), gestures, transitions, and UI view architectures.
 
-As general guidelines, slide transitions should not exist as screens are too wide  
-now. Animations and screen space transitions should only occur along the Y or  
-Z-axes. Text should be big and bold. Titlebar's and footers should not exist, as  
-clipping content so abruptly feels distasteful to the rounded edges of the screen.
+Many of these may not be as flashy as you might expect, there aren't any floating cards, grids, or design systems.
 
-Visual abstraction, in the form of navigation hierarchy for example, introduces  
-complexity not only for the user but for us as well. Ever written a navigation  
-router? As a designer/engineer, ask yourself why do you need to push the user into  
-an entirely new screen state to simply express a few words, or showcase a new view  
-or piece of content.  
+My focus with UI engineering is more about the code that drives how you interface with something. With transitions, animations, gestures, and flow creating a cohesive experience that feels natural for the user.
 
-Why do you think it justifiable then, to write the code and subsequent viewmodel's  
-to maintain that screen state and wire it into the flow across your application.  
-
-It's not that I believe navigation should disappear entirely, but that navigation  
-as is, is excessive, and the less of it there is, the better both for the user  
-and developer.
+The code driving these prototypes is far more important than what you might see, in the same way the iPhone X gesture system might seem like a simple drag up, but involves more than just a gesture.
 
 ## iOS 18 Photos
 <video src="https://github.com/user-attachments/assets/f53e7b3f-450f-4742-a950-6734b23ea654" controls="controls"></video>
@@ -36,7 +21,7 @@ ScrollViews, something Apple’s HIG usually discourages.
 - Coordinate locking and unlocking scroll offset's based on a single gesture.  
 - & Many other edge cases.
 
-This was possibly the most difficult thing to build and at the same time the most  
+This was probably the most difficult thing to build and at the same time the most  
 compelling. By crafting a clever way for scrolling to go infinitely in either  
 direction while still having designated break points via bounce, you get the "feel"  
 of segmentation within an app, without the abrupt context switching of traditional  
