@@ -30,7 +30,11 @@ tabs.
 I also see a place for this type of interface as the perfect foundation for a more  
 idealistic chat interface. Sidebar's feel archaic and antithetical to the primary  
 goal of a chatbot, which is to make the user feel as if they are having a long  
-standing conversation with something intelligent.  
+standing conversation with something intelligent.
+
+To quote someone from OpenAI
+
+> Most people do not even know the sidebar exists.
 
 When you have a conversation with a person, you are never "opening a new tab" when  
 you want to shift the topic to something else. Ideas naturally ebb and flow as the  
