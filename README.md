@@ -8,8 +8,12 @@ My focus with UI engineering is more about the code that drives how you interfac
 
 The code driving these prototypes is far more important than what you might see, in the same way the iPhone X gesture system might seem like a simple drag up, but involves more than just a gesture
 
+
+
+
+
 ## Auxiliary Gesture
-<video src="https://github.com/user-attachments/assets/7361ee00-a1b2-448d-b99e-d3676153a2c6" controls="controls"></video>
+<video src="https://github.com/user-attachments/assets/ef26156b-a323-4729-a58c-db0da99c2416" controls="controls"></video>
 
 Presents a fluid, native, auxiliary view attached to a ContextMenu preview. I built this out of frustration mainly, because I could not figure out why no application existed that utilized a native Swift context menu while presenting something like the iMessage tapback view. My approach uses the actual native CxtMenu UI component, spring, friction and all, while hooking into the layered gesture control to continue selecting a button in the Auxiliary View without having to lift a finger. Tap, Hold, Drag while retaining the feel of native fluidity. 
 
