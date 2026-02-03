@@ -6,7 +6,17 @@ Many of these may not be as flashy as you might expect, there aren't any floatin
 
 My focus with UI engineering is more about the code that drives how you interface with something. With transitions, animations, gestures, and flow creating a cohesive experience that feels natural for the user.
 
-The code driving these prototypes is far more important than what you might see, in the same way the iPhone X gesture system might seem like a simple drag up, but involves more than just a gesture.
+The code driving these prototypes is far more important than what you might see, in the same way the iPhone X gesture system might seem like a simple drag up, but involves more than just a gesture
+
+## Auxiliary Gesture
+<video src="https://github.com/user-attachments/assets/7361ee00-a1b2-448d-b99e-d3676153a2c6" controls="controls"></video>
+
+Presents a fluid, native, auxiliary view attached to a ContextMenu preview. I built this out of frustration mainly, because I could not figure out why no application existed that utilized a native Swift context menu while presenting something like the iMessage tapback view. My approach uses the actual native CxtMenu UI component, spring, friction and all, while hooking into the layered gesture control to continue selecting a button in the Auxiliary View without having to lift a finger. Tap, Hold, Drag while retaining the feel of native fluidity. 
+
+DominicGo has a really great open source package that allows you to hook into the UIContextMenu presenter delegate and attach a view to a leading or trailing edge. I tweaked it a bit to allow more customization with margin controls from the edges of the screen. 
+
+---
+
 
 ## iOS 18 Photos
 <video src="https://github.com/user-attachments/assets/f53e7b3f-450f-4742-a950-6734b23ea654" controls="controls"></video>
